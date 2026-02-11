@@ -1,0 +1,40 @@
+{
+  "metadata": {
+    "theme_name": "Cyberpunk Cryo-Facility",
+    "version": "1.0.0",
+    "description": "A dark, neon-lit derelict space station."
+  },
+  "initial_room_id": "cryo_chamber",
+  "rooms": {
+    "cryo_chamber": {
+      "name": "Cryo-Chamber",
+      "description": "Frost-etched glass surrounds your pod. Neon flickers above.",
+      "exits": {
+        "north": "hallway"
+      },
+      "items": [
+        {
+          "name": "Rusty Scalpel",
+          "description": "A jagged, blood-stained surgical tool."
+        }
+      ]
+    },
+    "hallway": {
+      "name": "Dim Hallway",
+      "description": "Exposed wires hiss with static electricity.",
+      "exits": {
+        "south": "cryo_chamber",
+        "north": "observation_deck"
+      },
+      "items": []
+    },
+    "observation_deck": {
+      "name": "Observation Deck",
+      "description": "A massive window overlooks the glowing ring of a gas giant.",
+      "exits": {
+        "south": "hallway"
+      },
+      "items": []
+    }
+  }
+}

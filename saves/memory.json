@@ -1,0 +1,16 @@
+{
+  "state": {
+    "rooms": {},
+    "player": {
+      "current_room_id": "test",
+      "inventory": []
+    }
+  },
+  "history_window": [
+    {
+      "input": "go north",
+      "output": "You enter the hallway."
+    }
+  ],
+  "timestamp": 1770814612.4055
+}

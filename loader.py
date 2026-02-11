@@ -1,0 +1,69 @@
+import json
+from pathlib import Path
+from typing import Dict, List, Optional
+from models import WorldState, Room, Item, Player
+
+
+class ThemeLoader:
+    """Handles loading and validation of game themes from JSON files."""
+
+    def __init__(self, theme_path: str):
+        """Initializes the loader with a specific theme directory.
+
+        Args:
+            theme_path (str): Path to the theme folder (e.g., 'assets/themes/default').
+        """
+        self.theme_path = Path(theme_path)
+        self.world_file = self.theme_path / "world.json"
+
+    def load_world(self) -> WorldState:
+        """Parses world.json and returns an initialized WorldState.
+
+        Returns:
+            WorldState: The validated world state.
+
+        Raises:
+            FileNotFoundError: If world.json is missing.
+            ValueError: If the JSON is malformed or contains invalid room references.
+        """
+        if not self.world_file.exists():
+            raise FileNotFoundError(f"Missing required world file: {self.world_file}")
+
+        with self.world_file.open("r") as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Malformed JSON in {self.world_file}: {e}")
+
+        # 1. Parse Rooms and Items
+        rooms: Dict[str, Room] = {}
+        for room_id, room_data in data.get("rooms", {}).items():
+            items = [
+                Item(name=i["name"], description=i["description"])
+                for i in room_data.get("items", [])
+            ]
+            rooms[room_id] = Room(
+                name=room_data["name"],
+                description=room_data["description"],
+                items=items,
+                exits=room_data.get("exits", {})
+            )
+
+        # 2. Validation: Check if all exit room_ids exist
+        for room_id, room in rooms.items():
+            for direction, target_id in room.exits.items():
+                if target_id not in rooms:
+                    raise ValueError(
+                        f"Validation Error: Room '{room_id}' has exit '{direction}' "
+                        f"leading to non-existent room '{target_id}'."
+                    )
+
+        # 3. Validation: Initial room check
+        initial_id = data.get("initial_room_id")
+        if not initial_id or initial_id not in rooms:
+            raise ValueError(f"Invalid or missing initial_room_id: '{initial_id}'")
+
+        # 4. Initialize Player
+        player = Player(current_room_id=initial_id)
+
+        return WorldState(rooms=rooms, player=player)

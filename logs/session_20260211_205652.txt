@@ -1,0 +1,2 @@
+player: go north
+[GAME]: You enter the hallway.
