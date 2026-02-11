@@ -1,11 +1,12 @@
 from models import WorldState, Item
 from typing import List
+import templates
 
 
 class GameEngine:
     """The core logic engine for the game.
 
-    Handles state transitions based on player commands.
+    Handles state transitions based on player commands using templates for feedback.
 
     Attributes:
         state (WorldState): The current state of the game world.
@@ -30,7 +31,7 @@ class GameEngine:
         """
         tokens = command.lower().strip().split()
         if not tokens:
-            return "Enter a command."
+            return templates.ERROR_NO_INPUT
 
         match tokens:
             case ["move", direction] | ["go", direction]:
@@ -42,7 +43,7 @@ class GameEngine:
             case ["inventory"] | ["i"]:
                 return self._inventory()
             case _:
-                return f"I don't understand '{command}'."
+                return templates.ERROR_UNKNOWN.format(command=command)
 
     def _move(self, direction: str) -> str:
         """Attempts to move the player in a given direction.
@@ -60,9 +61,13 @@ class GameEngine:
             new_room_id = current_room.exits[direction]
             player.current_room_id = new_room_id
             new_room = self.state.rooms[new_room_id]
-            return f"You move {direction} to the {new_room.name}.\n\n{new_room.description}"
+            return templates.MOVE_SUCCESS.format(
+                direction=direction,
+                room_name=new_room.name,
+                description=new_room.description
+            )
         else:
-            return f"You cannot go {direction} from here."
+            return templates.MOVE_FAIL.format(direction=direction)
 
     def _look(self) -> str:
         """Describes the current room, its items, and exits.
@@ -71,14 +76,17 @@ class GameEngine:
             str: The room description.
         """
         room = self.state.rooms[self.state.player.current_room_id]
-        desc = f"{room.name}\n{room.description}\n"
+        desc = templates.LOOK_ROOM_DESC.format(
+            room_name=room.name,
+            room_description=room.description
+        )
         
         if room.items:
-            item_names = [item.name for item in room.items]
-            desc += f"\nYou see: {', '.join(item_names)}"
+            item_list = ", ".join(item.name for item in room.items)
+            desc += templates.LOOK_ITEMS.format(item_list=item_list)
         
-        exits = ", ".join(room.exits.keys())
-        desc += f"\nExits: {exits}"
+        exit_list = ", ".join(room.exits.keys())
+        desc += templates.LOOK_EXITS.format(exit_list=exit_list)
         
         return desc
 
@@ -97,9 +105,9 @@ class GameEngine:
             if item.name.lower() == item_name.lower():
                 room.items.remove(item)
                 self.state.player.inventory.append(item)
-                return f"You take the {item.name}."
+                return templates.TAKE_SUCCESS.format(item_name=item.name)
         
-        return f"There is no '{item_name}' here."
+        return templates.TAKE_FAIL.format(item_name=item_name)
 
     def _inventory(self) -> str:
         """Lists the items in the player's inventory.
@@ -108,7 +116,7 @@ class GameEngine:
             str: The inventory list.
         """
         if not self.state.player.inventory:
-            return "Your inventory is empty."
+            return templates.INVENTORY_EMPTY
         
-        item_names = [item.name for item in self.state.player.inventory]
-        return f"You are carrying: {', '.join(item_names)}"
+        item_list = ", ".join(item.name for item in self.state.player.inventory)
+        return templates.INVENTORY_LIST.format(item_list=item_list)

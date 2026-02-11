@@ -1,55 +1,34 @@
+import json
+from pathlib import Path
 from models import Item, Room, Player, WorldState
 
 
-def load_tutorial_world() -> WorldState:
-    """Manually instantiates the initial game world state.
+def load_tutorial_world(file_path: str = "data/world.json") -> WorldState:
+    """Loads the game world state from a JSON file.
 
-    Creates a 3-room world with a Start Room, Hallway, and Observation Deck,
-    including the initial items and player position.
+    Args:
+        file_path (str): The path to the JSON world file.
 
     Returns:
         WorldState: The initialized game state.
     """
-    # Define Items
-    scalpel = Item(
-        name="Rusty Scalpel",
-        description="A jagged, blood-stained surgical tool. It looks like it "
-                    "hasn't been cleaned in decades."
-    )
+    path = Path(file_path)
+    with path.open("r") as f:
+        data = json.load(f)
 
-    # Define Rooms
-    cryo_chamber = Room(
-        name="Cryo-Chamber",
-        description="A cold, frost-covered room. Your open cryo-pod hisses "
-                    "behind you.",
-        items=[scalpel],
-        exits={"north": "hallway"}
-    )
+    rooms = {}
+    for room_id, room_data in data["rooms"].items():
+        items = [
+            Item(name=i["name"], description=i["description"])
+            for i in room_data.get("items", [])
+        ]
+        rooms[room_id] = Room(
+            name=room_data["name"],
+            description=room_data["description"],
+            items=items,
+            exits=room_data["exits"]
+        )
 
-    hallway = Room(
-        name="Hallway",
-        description="A sterile, dimly lit corridor. The floor is made of "
-                    "grated metal.",
-        items=[],
-        exits={"south": "cryo_chamber", "north": "observation_deck"}
-    )
-
-    observation_deck = Room(
-        name="Observation Deck",
-        description="A wide room with a reinforced glass wall overlooking "
-                    "the stars.",
-        items=[],
-        exits={"south": "hallway"}
-    )
-
-    # World Graph mapping IDs to Room objects
-    rooms = {
-        "cryo_chamber": cryo_chamber,
-        "hallway": hallway,
-        "observation_deck": observation_deck
-    }
-
-    # Initialize Player at the Start Room
-    player = Player(current_room_id="cryo_chamber")
+    player = Player(current_room_id=data["initial_room_id"])
 
     return WorldState(rooms=rooms, player=player)
