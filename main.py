@@ -1,20 +1,28 @@
-from world import load_tutorial_world
 from engine import GameEngine
+import sys
 
 
 def main():
-    """Entry point for the Iron Skeleton text-based RPG.
+    """Entry point for the Iron Skeleton: Advanced Logic Layer.
 
-    Initializes the game state and engine, then enters the REPL loop.
+    Initializes the engine with a data-driven theme and runs the REPL.
     """
-    # Initialize the game
-    state = load_tutorial_world()
-    engine = GameEngine(state)
-
-    print("--- IRON SKELETON: PHASE 1 ---")
-    print("Type 'look' to see your surroundings, or 'quit' to exit.\n")
+    print("--- IRON SKELETON: ADVANCED ---")
     
-    # Display the starting room description
+    theme = "default"
+    if len(sys.argv) > 1:
+        theme = sys.argv[1]
+
+    try:
+        engine = GameEngine(theme)
+    except Exception as e:
+        print(f"FAILED TO LOAD CORE: {e}")
+        return
+
+    print(f"Theme '{theme}' loaded successfully.")
+    print("Type 'look' to begin, or 'quit' to exit.\n")
+    
+    # Starting look
     print(engine.process_command("look"))
 
     while True:

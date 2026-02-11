@@ -1,34 +1,68 @@
 from models import WorldState, Item
-from typing import List
+from typing import List, Dict, Any
 import templates
+from loader import ThemeLoader
+from history import NarrativeLogger, MemoryManager
+from events import EventManager, get_weighted_result
 
 
 class GameEngine:
     """The core logic engine for the game.
 
-    Handles state transitions based on player commands using templates for feedback.
+    Handles FSM states, event triggers, and persistence.
 
     Attributes:
         state (WorldState): The current state of the game world.
+        mode (str): Current FSM mode ('EXPLORATION', 'COMBAT', 'MENU').
     """
 
-    def __init__(self, state: WorldState):
-        """Initializes the engine with a world state.
+    def __init__(self, theme_name: str):
+        """Initializes the engine with a theme and system modules.
 
         Args:
-            state (WorldState): The initial game world state.
+            theme_name (str): The name of the theme folder in assets/themes/.
         """
-        self.state = state
+        theme_path = f"assets/themes/{theme_name}"
+        loader = ThemeLoader(theme_path)
+        
+        self.state = loader.load_world()
+        self.mode = "EXPLORATION"
+        
+        # Systems
+        self.logger = NarrativeLogger()
+        self.memory = MemoryManager()
+        self.events = EventManager()
+        self.events.load_triggers(loader.load_events())
 
     def process_command(self, command: str) -> str:
-        """Processes a player command and updates the world state.
+        """Processes a player command, logs interactions, and saves state.
 
         Args:
             command (str): The raw input string from the player.
 
         Returns:
-            str: The result of the command to be displayed to the player.
+            str: The result of the command.
         """
+        self.logger.log("PLAYER", command)
+        
+        response = ""
+        match self.mode:
+            case "EXPLORATION":
+                response = self._handle_exploration(command)
+            case _:
+                response = f"Mode '{self.mode}' not implemented."
+
+        # Check for events triggered by the last action (if any)
+        # Note: Triggers are specifically checked within action methods like _move
+        
+        self.logger.log("GAME", response)
+        self.memory.add_interaction(command, response)
+        self.memory.save_snapshot(self.state)
+        
+        return response
+
+    def _handle_exploration(self, command: str) -> str:
+        """Logic for the Exploration FSM state."""
         tokens = command.lower().strip().split()
         if not tokens:
             return templates.ERROR_NO_INPUT
@@ -46,14 +80,7 @@ class GameEngine:
                 return templates.ERROR_UNKNOWN.format(command=command)
 
     def _move(self, direction: str) -> str:
-        """Attempts to move the player in a given direction.
-
-        Args:
-            direction (str): The direction to move.
-
-        Returns:
-            str: A description of the move or an error message.
-        """
+        """Moves player and checks for ROOM_ENTER triggers."""
         player = self.state.player
         current_room = self.state.rooms[player.current_room_id]
 
@@ -61,62 +88,62 @@ class GameEngine:
             new_room_id = current_room.exits[direction]
             player.current_room_id = new_room_id
             new_room = self.state.rooms[new_room_id]
-            return templates.MOVE_SUCCESS.format(
+            
+            result = templates.MOVE_SUCCESS.format(
                 direction=direction,
                 room_name=new_room.name,
                 description=new_room.description
             )
+
+            # Check for events
+            triggers = self.events.check_triggers("ROOM_ENTER", new_room_id)
+            for trigger in triggers:
+                trigger_msg = self._execute_trigger(trigger)
+                if trigger_msg:
+                    result += f"\n\n{trigger_msg}"
+            
+            return result
         else:
             return templates.MOVE_FAIL.format(direction=direction)
 
-    def _look(self) -> str:
-        """Describes the current room, its items, and exits.
+    def _execute_trigger(self, trigger: Any) -> str:
+        """Executes the action associated with a trigger."""
+        match trigger.action:
+            case "MESSAGE":
+                return trigger.params.get("text", "")
+            case "ENCOUNTER":
+                table = trigger.params.get("table", {})
+                result = get_weighted_result(table)
+                if result != "nothing":
+                    return f"[ENCOUNTER]: A {result} appears!"
+                return ""
+            case _:
+                return ""
 
-        Returns:
-            str: The room description.
-        """
+    def _look(self) -> str:
         room = self.state.rooms[self.state.player.current_room_id]
         desc = templates.LOOK_ROOM_DESC.format(
             room_name=room.name,
             room_description=room.description
         )
-        
         if room.items:
             item_list = ", ".join(item.name for item in room.items)
             desc += templates.LOOK_ITEMS.format(item_list=item_list)
-        
         exit_list = ", ".join(room.exits.keys())
         desc += templates.LOOK_EXITS.format(exit_list=exit_list)
-        
         return desc
 
     def _take(self, item_name: str) -> str:
-        """Attempts to pick up an item from the current room.
-
-        Args:
-            item_name (str): The name of the item to take.
-
-        Returns:
-            str: A message indicating success or failure.
-        """
         room = self.state.rooms[self.state.player.current_room_id]
-        
         for item in room.items:
             if item.name.lower() == item_name.lower():
                 room.items.remove(item)
                 self.state.player.inventory.append(item)
                 return templates.TAKE_SUCCESS.format(item_name=item.name)
-        
         return templates.TAKE_FAIL.format(item_name=item_name)
 
     def _inventory(self) -> str:
-        """Lists the items in the player's inventory.
-
-        Returns:
-            str: The inventory list.
-        """
         if not self.state.player.inventory:
             return templates.INVENTORY_EMPTY
-        
         item_list = ", ".join(item.name for item in self.state.player.inventory)
         return templates.INVENTORY_LIST.format(item_list=item_list)

@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from models import WorldState, Room, Item, Player
 
 
@@ -67,3 +67,17 @@ class ThemeLoader:
         player = Player(current_room_id=initial_id)
 
         return WorldState(rooms=rooms, player=player)
+
+    def load_events(self) -> List[Dict[str, Any]]:
+        """Parses events.json from the theme folder.
+
+        Returns:
+            List[Dict[str, Any]]: A list of raw trigger definitions.
+        """
+        events_file = self.theme_path / "events.json"
+        if not events_file.exists():
+            return []
+
+        with events_file.open("r") as f:
+            data = json.load(f)
+            return data.get("triggers", [])

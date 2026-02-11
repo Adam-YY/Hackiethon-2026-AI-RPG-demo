@@ -1,16 +1,75 @@
 {
   "state": {
-    "rooms": {},
+    "rooms": {
+      "cryo_chamber": {
+        "name": "Cryo-Chamber",
+        "description": "Frost-etched glass surrounds your pod. Neon flickers above.",
+        "items": [
+          {
+            "name": "Rusty Scalpel",
+            "description": "A jagged, blood-stained surgical tool."
+          }
+        ],
+        "exits": {
+          "north": "hallway"
+        }
+      },
+      "hallway": {
+        "name": "Dim Hallway",
+        "description": "Exposed wires hiss with static electricity.",
+        "items": [],
+        "exits": {
+          "south": "cryo_chamber",
+          "north": "observation_deck"
+        }
+      },
+      "observation_deck": {
+        "name": "Observation Deck",
+        "description": "A massive window overlooks the glowing ring of a gas giant.",
+        "items": [],
+        "exits": {
+          "south": "hallway"
+        }
+      }
+    },
     "player": {
-      "current_room_id": "test",
+      "current_room_id": "hallway",
       "inventory": []
     }
   },
   "history_window": [
     {
+      "input": "look",
+      "output": "Cryo-Chamber\nFrost-etched glass surrounds your pod. Neon flickers above.\n\nYou see: Rusty Scalpel\nExits: north"
+    },
+    {
+      "input": "look",
+      "output": "Cryo-Chamber\nFrost-etched glass surrounds your pod. Neon flickers above.\n\nYou see: Rusty Scalpel\nExits: north"
+    },
+    {
+      "input": "momo",
+      "output": "I don't understand 'momo'."
+    },
+    {
+      "input": "go norht",
+      "output": "You cannot go norht from here."
+    },
+    {
       "input": "go north",
-      "output": "You enter the hallway."
+      "output": "You move north to the Dim Hallway.\n\nExposed wires hiss with static electricity.\n\nThe floor creaks ominously beneath your feet..."
+    },
+    {
+      "input": "look",
+      "output": "Dim Hallway\nExposed wires hiss with static electricity.\n\nExits: south, north"
+    },
+    {
+      "input": "go south",
+      "output": "You move south to the Cryo-Chamber.\n\nFrost-etched glass surrounds your pod. Neon flickers above."
+    },
+    {
+      "input": "go north",
+      "output": "You move north to the Dim Hallway.\n\nExposed wires hiss with static electricity.\n\nThe floor creaks ominously beneath your feet..."
     }
   ],
-  "timestamp": 1770814612.4055
+  "timestamp": 1770818906.2384908
 }
