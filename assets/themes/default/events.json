@@ -1,0 +1,26 @@
+{
+  "triggers": [
+    {
+      "event_id": "trap_hallway",
+      "condition_type": "ROOM_ENTER",
+      "target_id": "hallway",
+      "action": "MESSAGE",
+      "params": {
+        "text": "The floor creaks ominously beneath your feet..."
+      }
+    },
+    {
+      "event_id": "spawn_enemy_observation",
+      "condition_type": "ROOM_ENTER",
+      "target_id": "observation_deck",
+      "action": "ENCOUNTER",
+      "params": {
+        "table": {
+          "nothing": 70,
+          "small_drone": 20,
+          "security_bot": 10
+        }
+      }
+    }
+  ]
+}
