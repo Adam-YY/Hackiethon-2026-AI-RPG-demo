@@ -3,8 +3,7 @@ from typing import List, Dict, Any
 import templates
 from loader import ThemeLoader
 import world
-from history import NarrativeLogger, MemoryManager
-from events import EventManager, get_weighted_result
+from systems import NarrativeLogger, MemoryManager, EventManager
 
 
 class GameEngine:
@@ -61,8 +60,9 @@ class GameEngine:
         # Check for events triggered by the last action (if any)
         # Note: Triggers are specifically checked within action methods like _move
         
-        self.logger.log("GAME", response)
+        self.logger.log("SYSTEM", response)
         self.memory.add_interaction(command, response)
+        self.memory.save_context(self.state)
         self.memory.save_snapshot(self.state)
         
         return response
@@ -82,11 +82,13 @@ class GameEngine:
                 return self._take(" ".join(item_parts))
             case ["inventory"] | ["i"]:
                 return self._inventory()
+            case ["stats"] | ["status"]:
+                return self._stats()
             case _:
                 return templates.ERROR_UNKNOWN.format(command=command)
 
     def _move(self, direction: str) -> str:
-        """Moves player and checks for ROOM_ENTER triggers."""
+        """Moves player and checks for enter_room triggers."""
         player = self.state.player
         current_room = self.state.rooms[player.current_room_id]
 
@@ -102,29 +104,45 @@ class GameEngine:
             )
 
             # Check for events
-            triggers = self.events.check_triggers("ROOM_ENTER", new_room_id)
+            triggers = self.events.check_triggers("enter_room", new_room_id)
             for trigger in triggers:
-                trigger_msg = self._execute_trigger(trigger)
-                if trigger_msg:
-                    result += f"\n\n{trigger_msg}"
+                result += f"\n\n[EVENT]: {trigger.narrative_description}"
+                self._apply_effect(trigger.result_effect)
             
             return result
         else:
             return templates.MOVE_FAIL.format(direction=direction)
 
-    def _execute_trigger(self, trigger: Any) -> str:
-        """Executes the action associated with a trigger."""
-        match trigger.action:
-            case "MESSAGE":
-                return trigger.params.get("text", "")
-            case "ENCOUNTER":
-                table = trigger.params.get("table", {})
-                result = get_weighted_result(table)
-                if result != "nothing":
-                    return f"[ENCOUNTER]: A {result} appears!"
-                return ""
-            case _:
-                return ""
+    def _take(self, item_name: str) -> str:
+        """Takes an item and checks for take_item triggers."""
+        room = self.state.rooms[self.state.player.current_room_id]
+        for item in room.items:
+            if item.name.lower() == item_name.lower():
+                room.items.remove(item)
+                self.state.player.inventory.append(item)
+                
+                result = templates.TAKE_SUCCESS.format(item_name=item.name)
+                
+                # Check for events
+                triggers = self.events.check_triggers("take_item", item.name)
+                for trigger in triggers:
+                    result += f"\n\n[EVENT]: {trigger.narrative_description}"
+                    self._apply_effect(trigger.result_effect)
+                
+                return result
+        return templates.TAKE_FAIL.format(item_name=item_name)
+
+    def _apply_effect(self, effect: Dict[str, Any]):
+        """Applies trigger effects to player state."""
+        player = self.state.player
+        player.hp += effect.get("hp", 0)
+        player.credits += effect.get("credits", 0)
+        player.hp = max(0, player.hp)
+
+    def _stats(self) -> str:
+        """Returns the player's current status."""
+        p = self.state.player
+        return f"STATUS: HP: {p.hp} | Credits: {p.credits} | Inv: {len(p.inventory)} items"
 
     def _look(self) -> str:
         room = self.state.rooms[self.state.player.current_room_id]
@@ -138,15 +156,6 @@ class GameEngine:
         exit_list = ", ".join(room.exits.keys())
         desc += templates.LOOK_EXITS.format(exit_list=exit_list)
         return desc
-
-    def _take(self, item_name: str) -> str:
-        room = self.state.rooms[self.state.player.current_room_id]
-        for item in room.items:
-            if item.name.lower() == item_name.lower():
-                room.items.remove(item)
-                self.state.player.inventory.append(item)
-                return templates.TAKE_SUCCESS.format(item_name=item.name)
-        return templates.TAKE_FAIL.format(item_name=item_name)
 
     def _inventory(self) -> str:
         if not self.state.player.inventory:

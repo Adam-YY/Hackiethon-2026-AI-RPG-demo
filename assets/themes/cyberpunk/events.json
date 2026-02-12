@@ -1,3 +1,24 @@
 {
-  "triggers": []
+  "triggers": [
+    {
+      "event_id": "cyber_rat_attack",
+      "trigger_type": "enter_room",
+      "condition": "street",
+      "probability": 1.0,
+      "narrative_description": "A cyber-rat with glowing red eyes lunges at you from a trash can!",
+      "result_effect": {
+        "hp": -10
+      }
+    },
+    {
+      "event_id": "found_credits",
+      "trigger_type": "take_item",
+      "condition": "broken_pipe",
+      "probability": 1.0,
+      "narrative_description": "As you lift the pipe, you notice a discarded credit-chip underneath.",
+      "result_effect": {
+        "credits": 20
+      }
+    }
+  ]
 }

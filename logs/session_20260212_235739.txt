@@ -1,0 +1,14 @@
+Player: look -> System: Damp Alleyway
+A dark, narrow space between two towering mega-structures. Rain drizzles down, mixing with the neon glow from above.
+
+You see: broken_pipe
+Exits: north
+Player: take broken_pipe -> System: You take the broken_pipe.
+
+[EVENT]: As you lift the pipe, you notice a discarded credit-chip underneath.
+Player: look -> System: Damp Alleyway
+A dark, narrow space between two towering mega-structures. Rain drizzles down, mixing with the neon glow from above.
+
+You see: broken_pipe
+Exits: north
+Player: stats -> System: STATUS: HP: 100 | Credits: 50 | Inv: 0 items
