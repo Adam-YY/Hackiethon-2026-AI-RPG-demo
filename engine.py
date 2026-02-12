@@ -1,5 +1,5 @@
 from models import WorldState, Item
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import templates
 from loader import ThemeLoader
 import world
@@ -36,8 +36,10 @@ class GameEngine:
         self.events.load_triggers(loader.load_events())
 
         # Print Intro Text
-        print(f"\n--- {self.story.get('title', 'Unknown Title')} ---")
-        print(f"{self.story.get('intro_text', 'No intro text available.')}\n")
+        print(f"\n--- {self.story.get('title', 'Unknown Title')} "
+              f"---")
+        print(f"{self.story.get('intro_text', 'No intro text '
+                                              'available.')}\n")
 
     def process_command(self, command: str) -> str:
         """Processes a player command, logs interactions, and saves state.
@@ -143,6 +145,31 @@ class GameEngine:
         """Returns the player's current status."""
         p = self.state.player
         return f"STATUS: HP: {p.hp} | Credits: {p.credits} | Inv: {len(p.inventory)} items"
+
+    def get_hud_data(self) -> Dict[str, Any]:
+        """Returns data for the HUD."""
+        p = self.state.player
+        room = self.state.rooms[p.current_room_id]
+        return {
+            "hp": p.hp,
+            "credits": p.credits,
+            "room_name": room.name
+        }
+
+    def check_win_condition(self) -> Optional[str]:
+        """Checks if the player has met the winning condition.
+        
+        For this version, we check if the player reached the target room 
+        defined in the story or a hardcoded 'penthouse' for cyberpunk.
+        """
+        player = self.state.player
+        if player.current_room_id == "penthouse":
+            return self.story.get("winning_condition", "You won!")
+        
+        if player.hp <= 0:
+            return "SYSTEM FAILURE: Vital signs terminated. Game Over."
+            
+        return None
 
     def _look(self) -> str:
         room = self.state.rooms[self.state.player.current_room_id]

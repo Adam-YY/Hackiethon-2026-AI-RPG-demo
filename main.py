@@ -9,7 +9,7 @@ def main():
     """
     print("--- IRON SKELETON: ADVANCED ---")
     
-    theme = "default"
+    theme = "cyberpunk"
     if len(sys.argv) > 1:
         theme = sys.argv[1]
 
@@ -27,6 +27,17 @@ def main():
 
     while True:
         try:
+            # Check Win/Loss State
+            win_msg = engine.check_win_condition()
+            if win_msg:
+                print(f"\n--- MISSION COMPLETE ---\n{win_msg}\n")
+                break
+
+            # Print HUD
+            hud = engine.get_hud_data()
+            print(f"\n[HP: {hud['hp']} | Credits: {hud['credits']} | Room: "
+                  f"{hud['room_name']}]")
+            
             user_input = input("> ").strip()
 
             if not user_input:

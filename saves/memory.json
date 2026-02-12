@@ -1,27 +1,39 @@
 {
   "current_stats": {
-    "hp": 100,
-    "credits": 50,
-    "inventory": []
-  },
-  "immediate_surroundings": {
-    "room_name": "Damp Alleyway",
-    "description": "A dark, narrow space between two towering mega-structures. Rain drizzles down, mixing with the neon glow from above.",
-    "exits": [
-      "north"
-    ],
-    "items_present": [
+    "hp": 80,
+    "credits": 70,
+    "inventory": [
       "broken_pipe"
     ]
   },
+  "immediate_surroundings": {
+    "room_name": "High-Rise Penthouse",
+    "description": "The luxurious top floor of the Arasaka tower. The view of the city is breathtaking.",
+    "exits": [
+      "down"
+    ],
+    "items_present": []
+  },
   "last_5_actions": [
     {
-      "action": "look",
-      "result": "Damp Alleyway\nA dark, narrow space between two towering mega-structures. Rain drizzles down, mixing with the neon glow from above.\n\nYou see: broken_pipe\nExits: north"
+      "action": "take broken_pipe",
+      "result": "You take the broken_pipe.\n\n[EVENT]: As you lift the pipe, you notice a discarded credit-chip underneath."
     },
     {
-      "action": "stats",
-      "result": "STATUS: HP: 100 | Credits: 50 | Inv: 0 items"
+      "action": "go north",
+      "result": "You move north to the Main Street.\n\nThe street is filled with people in trench coats and cybernetic enhancements. Hover-cars zip by overhead.\n\n[EVENT]: A cyber-rat with glowing red eyes lunges at you from a trash can!"
+    },
+    {
+      "action": "check",
+      "result": "I don't understand 'check'."
+    },
+    {
+      "action": "look",
+      "result": "Main Street\nThe street is filled with people in trench coats and cybernetic enhancements. Hover-cars zip by overhead.\n\nExits: south, up"
+    },
+    {
+      "action": "go up",
+      "result": "You move up to the High-Rise Penthouse.\n\nThe luxurious top floor of the Arasaka tower. The view of the city is breathtaking."
     }
   ]
 }

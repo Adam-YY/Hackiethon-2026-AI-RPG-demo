@@ -4,12 +4,7 @@
       "alley": {
         "name": "Damp Alleyway",
         "description": "A dark, narrow space between two towering mega-structures. Rain drizzles down, mixing with the neon glow from above.",
-        "items": [
-          {
-            "name": "broken_pipe",
-            "description": "A rusty piece of metal, heavy enough to be a weapon."
-          }
-        ],
+        "items": [],
         "exits": {
           "north": "street"
         }
@@ -33,21 +28,58 @@
       }
     },
     "player": {
-      "current_room_id": "alley",
-      "inventory": [],
-      "hp": 100,
-      "credits": 50
+      "current_room_id": "penthouse",
+      "inventory": [
+        {
+          "name": "broken_pipe",
+          "description": "A rusty piece of metal, heavy enough to be a weapon."
+        }
+      ],
+      "hp": 80,
+      "credits": 70
     }
   },
   "history_window": [
+    {
+      "action": "go north",
+      "result": "You move north to the Main Street.\n\nThe street is filled with people in trench coats and cybernetic enhancements. Hover-cars zip by overhead.\n\n[EVENT]: A cyber-rat with glowing red eyes lunges at you from a trash can!"
+    },
+    {
+      "action": "look",
+      "result": "Main Street\nThe street is filled with people in trench coats and cybernetic enhancements. Hover-cars zip by overhead.\n\nExits: south, up"
+    },
+    {
+      "action": "go south",
+      "result": "You move south to the Damp Alleyway.\n\nA dark, narrow space between two towering mega-structures. Rain drizzles down, mixing with the neon glow from above."
+    },
+    {
+      "action": "go up",
+      "result": "You cannot go up from here."
+    },
     {
       "action": "look",
       "result": "Damp Alleyway\nA dark, narrow space between two towering mega-structures. Rain drizzles down, mixing with the neon glow from above.\n\nYou see: broken_pipe\nExits: north"
     },
     {
-      "action": "stats",
-      "result": "STATUS: HP: 100 | Credits: 50 | Inv: 0 items"
+      "action": "take broken_pipe",
+      "result": "You take the broken_pipe.\n\n[EVENT]: As you lift the pipe, you notice a discarded credit-chip underneath."
+    },
+    {
+      "action": "go north",
+      "result": "You move north to the Main Street.\n\nThe street is filled with people in trench coats and cybernetic enhancements. Hover-cars zip by overhead.\n\n[EVENT]: A cyber-rat with glowing red eyes lunges at you from a trash can!"
+    },
+    {
+      "action": "check",
+      "result": "I don't understand 'check'."
+    },
+    {
+      "action": "look",
+      "result": "Main Street\nThe street is filled with people in trench coats and cybernetic enhancements. Hover-cars zip by overhead.\n\nExits: south, up"
+    },
+    {
+      "action": "go up",
+      "result": "You move up to the High-Rise Penthouse.\n\nThe luxurious top floor of the Arasaka tower. The view of the city is breathtaking."
     }
   ],
-  "timestamp": 1770911859.8134642
+  "timestamp": 1770912592.681772
 }

@@ -1,0 +1,13 @@
+Player: look -> System: Damp Alleyway
+A dark, narrow space between two towering mega-structures. Rain drizzles down, mixing with the neon glow from above.
+
+You see: broken_pipe
+Exits: north
+Player: go north -> System: You move north to the Main Street.
+
+The street is filled with people in trench coats and cybernetic enhancements. Hover-cars zip by overhead.
+
+[EVENT]: A cyber-rat with glowing red eyes lunges at you from a trash can!
+Player: go up -> System: You move up to the High-Rise Penthouse.
+
+The luxurious top floor of the Arasaka tower. The view of the city is breathtaking.
