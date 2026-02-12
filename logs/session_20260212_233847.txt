@@ -1,0 +1,6 @@
+player: look
+[GAME]: Cryo-Chamber
+Frost-etched glass surrounds your pod. Neon flickers above.
+
+You see: Rusty Scalpel
+Exits: north

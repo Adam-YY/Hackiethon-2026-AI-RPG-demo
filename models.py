@@ -50,9 +50,13 @@ class Player:
     Attributes:
         current_room_id (str): The ID of the room where the player is located.
         inventory (List[Item]): A list of items carried by the player.
+        hp (int): Health points of the player.
+        credits (int): Currency owned by the player.
     """
     current_room_id: str
     inventory: List[Item] = field(default_factory=list)
+    hp: int = 100
+    credits: int = 50
 
     def to_dict(self) -> dict:
         """Converts the player to a dictionary.

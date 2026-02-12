@@ -1,0 +1,6 @@
+player: look
+[GAME]: Damp Alleyway
+A dark, narrow space between two towering mega-structures. Rain drizzles down, mixing with the neon glow from above.
+
+You see: broken_pipe
+Exits: north

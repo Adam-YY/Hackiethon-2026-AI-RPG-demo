@@ -1,0 +1,12 @@
+player: look
+[GAME]: Cryo-Chamber
+Frost-etched glass surrounds your pod. Neon flickers above.
+
+You see: Rusty Scalpel
+Exits: north
+player: take rusty Scalpel
+[GAME]: You take the Rusty Scalpel.
+player: i
+[GAME]: You are carrying: Rusty Scalpel
+player: drop rusty Scalpel
+[GAME]: I don't understand 'drop rusty Scalpel'.

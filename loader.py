@@ -64,9 +64,34 @@ class ThemeLoader:
             raise ValueError(f"Invalid or missing initial_room_id: '{initial_id}'")
 
         # 4. Initialize Player
-        player = Player(current_room_id=initial_id)
+        player_data = data.get("player", {})
+        player = Player(
+            current_room_id=initial_id,
+            hp=player_data.get("hp", 100),
+            credits=player_data.get("credits", 50)
+        )
 
         return WorldState(rooms=rooms, player=player)
+
+    def load_story(self) -> Dict[str, str]:
+        """Parses story.json from the theme folder.
+
+        Returns:
+            Dict[str, str]: Story data (title, intro_text, etc.).
+        """
+        story_file = self.theme_path / "story.json"
+        if not story_file.exists():
+            return {
+                "title": "A New Adventure",
+                "intro_text": "You stand at the beginning of a mysterious journey...",
+                "winning_condition": "Unknown"
+            }
+
+        with story_file.open("r") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Malformed JSON in {story_file}: {e}")
 
     def load_events(self) -> List[Dict[str, Any]]:
         """Parses events.json from the theme folder.

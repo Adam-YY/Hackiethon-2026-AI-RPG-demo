@@ -2,6 +2,7 @@ from models import WorldState, Item
 from typing import List, Dict, Any
 import templates
 from loader import ThemeLoader
+import world
 from history import NarrativeLogger, MemoryManager
 from events import EventManager, get_weighted_result
 
@@ -25,7 +26,8 @@ class GameEngine:
         theme_path = f"assets/themes/{theme_name}"
         loader = ThemeLoader(theme_path)
         
-        self.state = loader.load_world()
+        self.story = loader.load_story()
+        self.state = world.load_world_from_theme(loader)
         self.mode = "EXPLORATION"
         
         # Systems
@@ -33,6 +35,10 @@ class GameEngine:
         self.memory = MemoryManager()
         self.events = EventManager()
         self.events.load_triggers(loader.load_events())
+
+        # Print Intro Text
+        print(f"\n--- {self.story.get('title', 'Unknown Title')} ---")
+        print(f"{self.story.get('intro_text', 'No intro text available.')}\n")
 
     def process_command(self, command: str) -> str:
         """Processes a player command, logs interactions, and saves state.
