@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Any
-from models import WorldState, Room, Item, Player
+from models import WorldState, Scene, Option, Item, Player
 
 
 class ThemeLoader:
@@ -11,7 +11,7 @@ class ThemeLoader:
         """Initializes the loader with a specific theme directory.
 
         Args:
-            theme_path (str): Path to the theme folder (e.g., 'assets/themes/default').
+            theme_path (str): Path to the theme folder (e.g., 'assets/themes/WasteLand').
         """
         self.theme_path = Path(theme_path)
         self.world_file = self.theme_path / "world.json"
@@ -24,7 +24,7 @@ class ThemeLoader:
 
         Raises:
             FileNotFoundError: If world.json is missing.
-            ValueError: If the JSON is malformed or contains invalid room references.
+            ValueError: If the JSON is malformed or contains invalid scene references.
         """
         if not self.world_file.exists():
             raise FileNotFoundError(f"Missing required world file: {self.world_file}")
@@ -35,45 +35,49 @@ class ThemeLoader:
             except json.JSONDecodeError as e:
                 raise ValueError(f"Malformed JSON in {self.world_file}: {e}")
 
-        # 1. Parse Rooms and Items
-        rooms: Dict[str, Room] = {}
-        for room_id, room_data in data.get("rooms", {}).items():
-            items = [
-                Item(name=i["name"], description=i["description"])
-                for i in room_data.get("items", [])
+        # 1. Parse Scenes
+        scenes: Dict[str, Scene] = {}
+        for scene_id, scene_data in data.get("scenes", {}).items():
+            options = [
+                Option(
+                    id=opt.get("id"),
+                    text=opt.get("text"),
+                    next_scene_id=opt.get("next_scene_id")
+                )
+                for opt in scene_data.get("options", [])
             ]
-            rooms[room_id] = Room(
-                name=room_data["name"],
-                description=room_data["description"],
-                items=items,
-                exits=room_data.get("exits", {})
+            scenes[scene_id] = Scene(
+                id=scene_id,
+                text=scene_data.get("text", ""),
+                is_end=scene_data.get("is_end", False),
+                options=options
             )
 
-        # 2. Validation: Check if all exit room_ids exist
-        for room_id, room in rooms.items():
-            for direction, target_id in room.exits.items():
-                if target_id not in rooms:
+        # 2. Validation: Check if all next_scene_id exist
+        for scene_id, scene in scenes.items():
+            for option in scene.options:
+                if option.next_scene_id not in scenes:
                     raise ValueError(
-                        f"Validation Error: Room '{room_id}' has exit '{direction}' "
-                        f"leading to non-existent room '{target_id}'."
+                        f"Validation Error: Scene '{scene_id}' has an option '{option.id}' "
+                        f"leading to non-existent scene '{option.next_scene_id}'."
                     )
 
-        # 3. Validation: Initial room check
-        initial_id = data.get("initial_room_id")
-        if not initial_id or initial_id not in rooms:
-            raise ValueError(f"Invalid or missing initial_room_id: '{initial_id}'")
+        # 3. Validation: Initial scene check
+        initial_id = data.get("initial_scene_id")
+        if not initial_id or initial_id not in scenes:
+            raise ValueError(f"Invalid or missing initial_scene_id: '{initial_id}'")
 
         # 4. Initialize Player
         player_data = data.get("player", {})
         player = Player(
-            current_room_id=initial_id,
+            current_scene_id=initial_id,
             hp=player_data.get("hp", 100),
             mana=player_data.get("mana", 50),
             bullet=player_data.get("bullet", 5),
             credits=player_data.get("credits", 50)
         )
 
-        return WorldState(rooms=rooms, player=player)
+        return WorldState(scenes=scenes, player=player)
 
     def load_story(self) -> Dict[str, str]:
         """Parses story.json from the theme folder.
@@ -106,5 +110,8 @@ class ThemeLoader:
             return []
 
         with events_file.open("r") as f:
-            data = json.load(f)
-            return data.get("triggers", [])
+            try:
+                data = json.load(f)
+                return data.get("triggers", [])
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Malformed JSON in {events_file}: {e}")

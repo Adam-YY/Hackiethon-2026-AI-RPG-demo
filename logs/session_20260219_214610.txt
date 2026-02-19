@@ -1,0 +1,17 @@
+Scene Description: The city council has assigned you a dangerous task to investigate the outskirts. Will you accept?
+Selected Option: Accept the task
+Scene Description: You accept the task. Your supervisor asks if you want to allocate more people to your team.
+Selected Option: Go along
+Scene Description: You venture out alone. You find strange trails leading into the mist.
+Selected Option: Follow the trails
+Scene Description: Following the trails, you reach a three-way split in the path. Which road will you take?
+Selected Option: Road 1
+Scene Description: You encounter echoes—magical remnants of dead bodies. They are hostile.
+Selected Option: Fight the echo with spells and items
+Scene Description: Victory! You spent 20 Mana and 2 bullets, but gained 10 mana from the echo using your sorcerer's ring.
+Selected Option: Go back to the split road
+Scene Description: Following the trails, you reach a three-way split in the path. Which road will you take?
+Selected Option: Road 2
+Scene Description: You find the Dragon's Nest. The egg pulses with power and offers you a choice.
+Selected Option: Take the egg's offer
+Scene Description: You gain immense power and start your journey out of the city. The world is yours to command. End of game.

@@ -3,9 +3,9 @@ import time
 import os
 import random
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
-from models import WorldState
+from models import WorldState, Player
 
 
 @dataclass
@@ -14,18 +14,18 @@ class Trigger:
 
     Attributes:
         event_id (str): Unique identifier for the trigger.
-        trigger_type (str): Type of event (e.g., 'enter_room', 'take_item').
-        condition (str): The ID of the room or item that triggers the event.
+        trigger_type (str): Type of event (e.g., 'scene_enter').
+        condition (str): The scene_id that triggers the event.
         probability (float): Chance of the event firing (0.0 to 1.0).
         narrative_description (str): Text to display when triggered.
-        result_effect (Dict[str, Any]): State changes (e.g., {'hp': -5}).
+        result (Dict[str, Any]): State changes (e.g., {'hp': -5}).
     """
     event_id: str
     trigger_type: str
     condition: str
     probability: float
     narrative_description: str
-    result_effect: Dict[str, Any] = field(default_factory=dict)
+    result: Dict[str, Any] = field(default_factory=dict)
 
 
 class EventManager:
@@ -44,17 +44,21 @@ class EventManager:
                 condition=data["condition"],
                 probability=data.get("probability", 1.0),
                 narrative_description=data["narrative_description"],
-                result_effect=data.get("result_effect", {})
+                result=data.get("result", {})
             ))
 
-    def check_triggers(self, trigger_type: str, condition: str) -> List[Trigger]:
-        """Checks for matching triggers and handles probability."""
-        fired = []
+    def check_triggers(self, scene_id: str) -> List[Tuple[Dict[str, Any], str]]:
+        """Checks for matching triggers for a specific scene.
+
+        Returns:
+            List[Tuple[Dict[str, Any], str]]: A list of (result, description) for fired events.
+        """
+        fired_events = []
         for t in self.triggers:
-            if t.trigger_type == trigger_type and t.condition == condition:
+            if t.condition == scene_id:
                 if random.random() <= t.probability:
-                    fired.append(t)
-        return fired
+                    fired_events.append((t.result, t.narrative_description))
+        return fired_events
 
 
 class NarrativeLogger:
@@ -83,9 +87,9 @@ class NarrativeLogger:
             text (str): The content to log.
         """
         if role.upper() == "PLAYER":
-            entry = f"Player: {text} -> "
+            entry = f"Selected Option: {text}\n"
         else:
-            entry = f"System: {text.strip()}\n"
+            entry = f"Scene Description: {text.strip()}\n"
         
         with self.file_path.open("a", encoding="utf-8") as f:
             f.write(entry)
@@ -121,36 +125,35 @@ class MemoryManager:
         if len(self.history_window) > 10:
             self.history_window.pop(0)
 
-    def save_context(self, state: WorldState):
+    def save_snapshot(self, player: Player, current_scene_id: str, recent_history: List[Dict[str, str]]):
         """Saves a compressed memory.json for AI consumption.
 
         Args:
-            state (WorldState): The current game world state.
+            player (Player): The player object.
+            current_scene_id (str): The ID of the current scene.
+            recent_history (List[Dict[str, str]]): Recent interaction history.
         """
-        player = state.player
-        current_room = state.rooms[player.current_room_id]
-        
         compressed_memory = {
-            "current_stats": {
+            "player_state": {
                 "hp": player.hp,
                 "mana": player.mana,
                 "bullet": player.bullet,
                 "credits": player.credits,
                 "inventory": [item.name for item in player.inventory]
             },
-            "immediate_surroundings": {
-                "room_name": current_room.name,
-                "description": current_room.description,
-                "exits": list(current_room.exits.keys()),
-                "items_present": [item.name for item in current_room.items]
-            },
-            "last_5_actions": self.history_window[-5:]
+            "current_location": current_scene_id,
+            "recent_history": recent_history[-5:],
+            "timestamp": time.time()
         }
 
         with self.save_path.open("w", encoding="utf-8") as f:
             json.dump(compressed_memory, f, indent=2)
 
-    def save_snapshot(self, state: WorldState):
+    def save_context(self, state: WorldState):
+        """Saves a compressed memory.json for AI consumption (Legacy/Internal)."""
+        self.save_snapshot(state.player, state.player.current_scene_id, self.history_window)
+
+    def save_full_snapshot(self, state: WorldState):
         """Serializes current full state and history window to JSON.
 
         Args:

@@ -1,42 +1,228 @@
 {
   "state": {
-    "rooms": {
-      "alley": {
-        "name": "Damp Alleyway",
-        "description": "A dark, narrow space between two towering mega-structures. Rain drizzles down, mixing with the neon glow from above.",
-        "items": [
+    "scenes": {
+      "script_1": {
+        "id": "script_1",
+        "text": "The city council has assigned you a dangerous task to investigate the outskirts. Will you accept?",
+        "is_end": false,
+        "options": [
           {
-            "name": "broken_pipe",
-            "description": "A rusty piece of metal, heavy enough to be a weapon."
+            "id": 1,
+            "text": "Accept the task",
+            "next_scene_id": "script_2"
+          },
+          {
+            "id": 2,
+            "text": "Refuse the task",
+            "next_scene_id": "script_3"
           }
-        ],
-        "exits": {
-          "north": "street"
-        }
+        ]
       },
-      "street": {
-        "name": "Main Street",
-        "description": "The street is filled with people in trench coats and cybernetic enhancements. Hover-cars zip by overhead.",
-        "items": [],
-        "exits": {
-          "south": "alley",
-          "up": "penthouse"
-        }
+      "script_2": {
+        "id": "script_2",
+        "text": "You accept the task. Your supervisor asks if you want to allocate more people to your team.",
+        "is_end": false,
+        "options": [
+          {
+            "id": 1,
+            "text": "Go with colleagues",
+            "next_scene_id": "script_4"
+          },
+          {
+            "id": 2,
+            "text": "Go along",
+            "next_scene_id": "script_5"
+          }
+        ]
       },
-      "penthouse": {
-        "name": "High-Rise Penthouse",
-        "description": "The luxurious top floor of the Arasaka tower. The view of the city is breathtaking.",
-        "items": [],
-        "exits": {
-          "down": "street"
-        }
+      "script_3": {
+        "id": "script_3",
+        "text": "You refuse the task. Your career in the city guard comes to an abrupt end, and you wonder what might have been.",
+        "is_end": true,
+        "options": []
+      },
+      "script_4": {
+        "id": "script_4",
+        "text": "You head out with your colleagues. Deep in the wasteland, you hear a strange sound and see a faint glow.",
+        "is_end": false,
+        "options": [
+          {
+            "id": 1,
+            "text": "Tell colleagues about what you heard and follow the sound together",
+            "next_scene_id": "script_6"
+          },
+          {
+            "id": 2,
+            "text": "Keep it to yourself",
+            "next_scene_id": "script_7"
+          }
+        ]
+      },
+      "script_5": {
+        "id": "script_5",
+        "text": "You venture out alone. You find strange trails leading into the mist.",
+        "is_end": false,
+        "options": [
+          {
+            "id": 1,
+            "text": "Follow the trails",
+            "next_scene_id": "script_9_1"
+          },
+          {
+            "id": 2,
+            "text": "Don't follow",
+            "next_scene_id": "script_8"
+          }
+        ]
+      },
+      "script_6": {
+        "id": "script_6",
+        "text": "You and your colleagues follow the sound and discover a dragon egg. You report it to the City, and it is used as fuel. End of game.",
+        "is_end": true,
+        "options": []
+      },
+      "script_7": {
+        "id": "script_7",
+        "text": "You keep the discovery to yourself. The colleagues seem oblivious.",
+        "is_end": false,
+        "options": [
+          {
+            "id": 1,
+            "text": "Ignore the sound",
+            "next_scene_id": "script_8"
+          },
+          {
+            "id": 2,
+            "text": "Go back at night alone",
+            "next_scene_id": "script_9_2"
+          }
+        ]
+      },
+      "script_8": {
+        "id": "script_8",
+        "text": "You decide not to pursue the mystery. Life continues as usual, but the world feels a bit smaller. End of game.",
+        "is_end": true,
+        "options": []
+      },
+      "script_9_1": {
+        "id": "script_9_1",
+        "text": "Following the trails, you reach a three-way split in the path. Which road will you take?",
+        "is_end": false,
+        "options": [
+          {
+            "id": 1,
+            "text": "Road 1",
+            "next_scene_id": "script_11"
+          },
+          {
+            "id": 2,
+            "text": "Road 2",
+            "next_scene_id": "script_12"
+          },
+          {
+            "id": 3,
+            "text": "Road 3",
+            "next_scene_id": "script_11"
+          }
+        ]
+      },
+      "script_9_2": {
+        "id": "script_9_2",
+        "text": "You return at night and find a magical trace. You gain 20 mana from the echo of the trace. A three-way split lies ahead.",
+        "is_end": false,
+        "options": [
+          {
+            "id": 1,
+            "text": "Road 1",
+            "next_scene_id": "script_11"
+          },
+          {
+            "id": 2,
+            "text": "Road 2",
+            "next_scene_id": "script_12"
+          },
+          {
+            "id": 3,
+            "text": "Road 3",
+            "next_scene_id": "script_11"
+          }
+        ]
+      },
+      "script_11": {
+        "id": "script_11",
+        "text": "You encounter echoes\u2014magical remnants of dead bodies. They are hostile.",
+        "is_end": false,
+        "options": [
+          {
+            "id": 1,
+            "text": "Run away and go back home",
+            "next_scene_id": "script_13"
+          },
+          {
+            "id": 2,
+            "text": "Fight the echo with spells and items",
+            "next_scene_id": "script_10"
+          }
+        ]
+      },
+      "script_10": {
+        "id": "script_10",
+        "text": "Victory! You spent 20 Mana and 2 bullets, but gained 10 mana from the echo using your sorcerer's ring.",
+        "is_end": false,
+        "options": [
+          {
+            "id": 1,
+            "text": "Go back to the split road",
+            "next_scene_id": "script_9_1"
+          },
+          {
+            "id": 2,
+            "text": "Go home",
+            "next_scene_id": "script_13"
+          }
+        ]
+      },
+      "script_12": {
+        "id": "script_12",
+        "text": "You find the Dragon's Nest. The egg pulses with power and offers you a choice.",
+        "is_end": false,
+        "options": [
+          {
+            "id": 1,
+            "text": "Take the egg's offer",
+            "next_scene_id": "script_accept_offer"
+          },
+          {
+            "id": 2,
+            "text": "Reject the offer",
+            "next_scene_id": "script_reject_offer"
+          }
+        ]
+      },
+      "script_13": {
+        "id": "script_13",
+        "text": "You return home, safe but forever changed by what you saw. End of game.",
+        "is_end": true,
+        "options": []
+      },
+      "script_accept_offer": {
+        "id": "script_accept_offer",
+        "text": "You gain immense power and start your journey out of the city. The world is yours to command. End of game.",
+        "is_end": true,
+        "options": []
+      },
+      "script_reject_offer": {
+        "id": "script_reject_offer",
+        "text": "You battle the dragon egg in an epic confrontation. The wasteland shakes from the impact. End of game.",
+        "is_end": true,
+        "options": []
       }
     },
     "player": {
-      "current_room_id": "alley",
+      "current_scene_id": "script_9_2",
       "inventory": [],
       "hp": 100,
-      "mana": 50,
+      "mana": 70,
       "bullet": 5,
       "credits": 50
     }
@@ -44,12 +230,24 @@
   "history_window": [
     {
       "action": "look",
-      "result": "Damp Alleyway\nA dark, narrow space between two towering mega-structures. Rain drizzles down, mixing with the neon glow from above.\n\nYou see: broken_pipe\nExits: north"
+      "result": "The city council has assigned you a dangerous task to investigate the outskirts. Will you accept?\n\nChoices:\n1. Accept the task\n2. Refuse the task"
     },
     {
-      "action": "look",
-      "result": "Damp Alleyway\nA dark, narrow space between two towering mega-structures. Rain drizzles down, mixing with the neon glow from above.\n\nYou see: broken_pipe\nExits: north"
+      "action": "1",
+      "result": "Selected: Accept the task\n\nYou accept the task. Your supervisor asks if you want to allocate more people to your team.\n\nChoices:\n1. Go with colleagues\n2. Go along"
+    },
+    {
+      "action": "1",
+      "result": "Selected: Go with colleagues\n\nYou head out with your colleagues. Deep in the wasteland, you hear a strange sound and see a faint glow.\n\nChoices:\n1. Tell colleagues about what you heard and follow the sound together\n2. Keep it to yourself"
+    },
+    {
+      "action": "2",
+      "result": "Selected: Keep it to yourself\n\nYou keep the discovery to yourself. The colleagues seem oblivious.\n\nChoices:\n1. Ignore the sound\n2. Go back at night alone"
+    },
+    {
+      "action": "2",
+      "result": "Selected: Go back at night alone\n\n\n[EVENT]: The echo of the magical trace resonates with your core.\nYou return at night and find a magical trace. You gain 20 mana from the echo of the trace. A three-way split lies ahead.\n\nChoices:\n1. Road 1\n2. Road 2\n3. Road 3"
     }
   ],
-  "timestamp": 1771497334.36411
+  "timestamp": 1771508068.249695
 }

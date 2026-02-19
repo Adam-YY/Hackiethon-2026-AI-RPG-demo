@@ -1,46 +1,42 @@
 from dataclasses import dataclass, field, asdict
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
 @dataclass
-class Entity:
-    """Base class for anything with a name and description.
+class Option:
+    """A choice available in a scene.
 
     Attributes:
-        name (str): The name of the entity.
-        description (str): A detailed description of the entity.
+        id (int): The unique identifier for the option.
+        text (str): The narrative text of the choice.
+        next_scene_id (str): The ID of the scene this choice leads to.
     """
+    id: int
+    text: str
+    next_scene_id: str
+
+
+@dataclass
+class Scene:
+    """A narrative node in the game world (Visual Novel style).
+
+    Attributes:
+        id (str): Unique identifier for the scene.
+        text (str): The narrative text of the scene.
+        is_end (bool): Whether this scene is a terminal node.
+        options (List[Option]): A list of choices available to the player.
+    """
+    id: str
+    text: str
+    is_end: bool = False
+    options: List[Option] = field(default_factory=list)
+
+
+@dataclass
+class Item:
+    """An item that can be picked up or used in the game."""
     name: str
     description: str
-
-    def to_dict(self) -> dict:
-        """Converts the entity to a dictionary.
-
-        Returns:
-            dict: The dictionary representation of the entity.
-        """
-        return asdict(self)
-
-
-@dataclass
-class Item(Entity):
-    """An item that can be picked up or used in the game.
-
-    Inherits from Entity.
-    """
-    pass
-
-
-@dataclass
-class Room(Entity):
-    """A graph node representing a location in the game world.
-
-    Attributes:
-        items (List[Item]): A list of items currently in the room.
-        exits (Dict[str, str]): A mapping of directions to room IDs.
-    """
-    items: List[Item] = field(default_factory=list)
-    exits: Dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -48,14 +44,14 @@ class Player:
     """The player character and their current state.
 
     Attributes:
-        current_room_id (str): The ID of the room where the player is located.
+        current_scene_id (str): The ID of the scene where the player is located.
         inventory (List[Item]): A list of items carried by the player.
         hp (int): Health points of the player.
         mana (int): Mana points of the player.
         bullet (int): Number of bullets the player has.
         credits (int): Currency owned by the player.
     """
-    current_room_id: str
+    current_scene_id: str
     inventory: List[Item] = field(default_factory=list)
     hp: int = 100
     mana: int = 50
@@ -63,11 +59,6 @@ class Player:
     credits: int = 50
 
     def to_dict(self) -> dict:
-        """Converts the player to a dictionary.
-
-        Returns:
-            dict: The dictionary representation of the player.
-        """
         return asdict(self)
 
 
@@ -76,16 +67,11 @@ class WorldState:
     """The isolated state of the game world.
 
     Attributes:
-        rooms (Dict[str, Room]): A mapping of room IDs to Room objects.
+        scenes (Dict[str, Scene]): A mapping of scene IDs to Scene objects.
         player (Player): The player object.
     """
-    rooms: Dict[str, Room]
+    scenes: Dict[str, Scene]
     player: Player
 
     def to_dict(self) -> dict:
-        """Converts the world state to a dictionary.
-
-        Returns:
-            dict: The dictionary representation of the world state.
-        """
         return asdict(self)

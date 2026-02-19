@@ -1,0 +1,26 @@
+{
+  "triggers": [
+    {
+      "event_id": "magical_trace_mana",
+      "trigger_type": "scene_enter",
+      "condition": "script_9_2",
+      "probability": 1.0,
+      "narrative_description": "The echo of the magical trace resonates with your core.",
+      "result": {
+        "mana": 20
+      }
+    },
+    {
+      "event_id": "echo_battle_attrition",
+      "trigger_type": "scene_enter",
+      "condition": "script_10",
+      "probability": 1.0,
+      "narrative_description": "The battle was taxing on your mind and body.",
+      "result": {
+        "mana": -10,
+        "hp": -20,
+        "bullet": -2
+      }
+    }
+  ]
+}

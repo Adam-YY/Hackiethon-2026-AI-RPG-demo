@@ -1,0 +1,211 @@
+{
+  "initial_scene_id": "script_1",
+  "player": {
+    "hp": 100,
+    "mana": 50,
+    "bullet": 5,
+    "credits": 50
+  },
+  "scenes": {
+    "script_1": {
+      "text": "The city council has assigned you a dangerous task to investigate the outskirts. Will you accept?",
+      "is_end": false,
+      "options": [
+        {
+          "id": 1,
+          "text": "Accept the task",
+          "next_scene_id": "script_2"
+        },
+        {
+          "id": 2,
+          "text": "Refuse the task",
+          "next_scene_id": "script_3"
+        }
+      ]
+    },
+    "script_2": {
+      "text": "You accept the task. Your supervisor asks if you want to allocate more people to your team.",
+      "is_end": false,
+      "options": [
+        {
+          "id": 1,
+          "text": "Go with colleagues",
+          "next_scene_id": "script_4"
+        },
+        {
+          "id": 2,
+          "text": "Go along",
+          "next_scene_id": "script_5"
+        }
+      ]
+    },
+    "script_3": {
+      "text": "You refuse the task. Your career in the city guard comes to an abrupt end, and you wonder what might have been.",
+      "is_end": true,
+      "options": []
+    },
+    "script_4": {
+      "text": "You head out with your colleagues. Deep in the wasteland, you hear a strange sound and see a faint glow.",
+      "is_end": false,
+      "options": [
+        {
+          "id": 1,
+          "text": "Tell colleagues about what you heard and follow the sound together",
+          "next_scene_id": "script_6"
+        },
+        {
+          "id": 2,
+          "text": "Keep it to yourself",
+          "next_scene_id": "script_7"
+        }
+      ]
+    },
+    "script_5": {
+      "text": "You venture out alone. You find strange trails leading into the mist.",
+      "is_end": false,
+      "options": [
+        {
+          "id": 1,
+          "text": "Follow the trails",
+          "next_scene_id": "script_9_1"
+        },
+        {
+          "id": 2,
+          "text": "Don't follow",
+          "next_scene_id": "script_8"
+        }
+      ]
+    },
+    "script_6": {
+      "text": "You and your colleagues follow the sound and discover a dragon egg. You report it to the City, and it is used as fuel. End of game.",
+      "is_end": true,
+      "options": []
+    },
+    "script_7": {
+      "text": "You keep the discovery to yourself. The colleagues seem oblivious.",
+      "is_end": false,
+      "options": [
+        {
+          "id": 1,
+          "text": "Ignore the sound",
+          "next_scene_id": "script_8"
+        },
+        {
+          "id": 2,
+          "text": "Go back at night alone",
+          "next_scene_id": "script_9_2"
+        }
+      ]
+    },
+    "script_8": {
+      "text": "You decide not to pursue the mystery. Life continues as usual, but the world feels a bit smaller. End of game.",
+      "is_end": true,
+      "options": []
+    },
+    "script_9_1": {
+      "text": "Following the trails, you reach a three-way split in the path. Which road will you take?",
+      "is_end": false,
+      "options": [
+        {
+          "id": 1,
+          "text": "Road 1",
+          "next_scene_id": "script_11"
+        },
+        {
+          "id": 2,
+          "text": "Road 2",
+          "next_scene_id": "script_12"
+        },
+        {
+          "id": 3,
+          "text": "Road 3",
+          "next_scene_id": "script_11"
+        }
+      ]
+    },
+    "script_9_2": {
+      "text": "You return at night and find a magical trace. You gain 20 mana from the echo of the trace. A three-way split lies ahead.",
+      "is_end": false,
+      "options": [
+        {
+          "id": 1,
+          "text": "Road 1",
+          "next_scene_id": "script_11"
+        },
+        {
+          "id": 2,
+          "text": "Road 2",
+          "next_scene_id": "script_12"
+        },
+        {
+          "id": 3,
+          "text": "Road 3",
+          "next_scene_id": "script_11"
+        }
+      ]
+    },
+    "script_11": {
+      "text": "You encounter echoes—magical remnants of dead bodies. They are hostile.",
+      "is_end": false,
+      "options": [
+        {
+          "id": 1,
+          "text": "Run away and go back home",
+          "next_scene_id": "script_13"
+        },
+        {
+          "id": 2,
+          "text": "Fight the echo with spells and items",
+          "next_scene_id": "script_10"
+        }
+      ]
+    },
+    "script_10": {
+      "text": "Victory! You spent 20 Mana and 2 bullets, but gained 10 mana from the echo using your sorcerer's ring.",
+      "is_end": false,
+      "options": [
+        {
+          "id": 1,
+          "text": "Go back to the split road",
+          "next_scene_id": "script_9_1"
+        },
+        {
+          "id": 2,
+          "text": "Go home",
+          "next_scene_id": "script_13"
+        }
+      ]
+    },
+    "script_12": {
+      "text": "You find the Dragon's Nest. The egg pulses with power and offers you a choice.",
+      "is_end": false,
+      "options": [
+        {
+          "id": 1,
+          "text": "Take the egg's offer",
+          "next_scene_id": "script_accept_offer"
+        },
+        {
+          "id": 2,
+          "text": "Reject the offer",
+          "next_scene_id": "script_reject_offer"
+        }
+      ]
+    },
+    "script_13": {
+      "text": "You return home, safe but forever changed by what you saw. End of game.",
+      "is_end": true,
+      "options": []
+    },
+    "script_accept_offer": {
+      "text": "You gain immense power and start your journey out of the city. The world is yours to command. End of game.",
+      "is_end": true,
+      "options": []
+    },
+    "script_reject_offer": {
+      "text": "You battle the dragon egg in an epic confrontation. The wasteland shakes from the impact. End of game.",
+      "is_end": true,
+      "options": []
+    }
+  }
+}

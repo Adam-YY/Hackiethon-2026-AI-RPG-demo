@@ -3,13 +3,10 @@ import sys
 
 
 def main():
-    """Entry point for the Iron Skeleton: Advanced Logic Layer.
-
-    Initializes the engine with a data-driven theme and runs the REPL.
-    """
-    print("--- IRON SKELETON: ADVANCED ---")
+    """Entry point for the Visual Novel engine loop."""
+    print("--- IRON SKELETON: VISUAL NOVEL ---")
     
-    theme = "cyberpunk"
+    theme = "WasteLand"
     if len(sys.argv) > 1:
         theme = sys.argv[1]
 
@@ -19,37 +16,52 @@ def main():
         print(f"FAILED TO LOAD CORE: {e}")
         return
 
-    print(f"Theme '{theme}' loaded successfully.")
-    print("Type 'look' to begin, or 'quit' to exit.\n")
-    
-    # Starting look
-    print(engine.process_command("look"))
+    print(f"Theme '{theme}' loaded successfully.\n")
 
     while True:
-        try:
-            # Check Win/Loss State
-            win_msg = engine.check_win_condition()
-            if win_msg:
-                print(f"\n--- MISSION COMPLETE ---\n{win_msg}\n")
-                break
+        # 1. Print HUD
+        print(f"\n{engine.get_hud()}")
+        
+        # 2. Print Current Scene
+        scene = engine.get_current_scene()
+        print(f"\n{scene.text}")
 
-            # Print HUD
-            hud = engine.get_hud_data()
-            print(f"\n[HP: {hud['hp']} | Mana: {hud['mana']} | Bullets: {hud['bullet']} | Credits: {hud['credits']} | Room: "
-                  f"{hud['room_name']}]")
+        # 3. Handle Events
+        event_descriptions = engine.handle_events()
+        for desc in event_descriptions:
+            print(f"\n[EVENT]: {desc}")
+
+        # 4. Check Game Over or End State
+        death_msg = engine.check_game_over()
+        if death_msg:
+            print(f"\n{death_msg}")
+            break
             
-            user_input = input("> ").strip()
+        if scene.is_end:
+            print("\n--- THE END ---")
+            break
 
-            if not user_input:
-                continue
+        # 5. Print Numbered Options
+        print("\nChoices:")
+        for opt in scene.options:
+            print(f"{opt.id}. {opt.text}")
 
+        # 6. Prompt for Input
+        try:
+            user_input = input("\n> ").strip()
             if user_input.lower() in ["quit", "exit", "q"]:
                 print("Shutting down core...")
                 break
+            
+            choice_id = int(user_input)
+            
+            # 7. Update State and Persistence
+            if not engine.select_option(choice_id):
+                print(f"\nInvalid choice: {choice_id}. Please try again.")
+                continue
 
-            response = engine.process_command(user_input)
-            print(f"\n{response}\n")
-
+        except ValueError:
+            print("\nPlease enter a valid choice number.")
         except (EOFError, KeyboardInterrupt):
             print("\nShutting down core...")
             break
