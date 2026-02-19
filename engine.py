@@ -138,13 +138,17 @@ class GameEngine:
         """Applies trigger effects to player state."""
         player = self.state.player
         player.hp += effect.get("hp", 0)
+        player.mana += effect.get("mana", 0)
+        player.bullet += effect.get("bullet", 0)
         player.credits += effect.get("credits", 0)
         player.hp = max(0, player.hp)
+        player.mana = max(0, player.mana)
+        player.bullet = max(0, player.bullet)
 
     def _stats(self) -> str:
         """Returns the player's current status."""
         p = self.state.player
-        return f"STATUS: HP: {p.hp} | Credits: {p.credits} | Inv: {len(p.inventory)} items"
+        return f"STATUS: HP: {p.hp} | Mana: {p.mana} | Bullets: {p.bullet} | Credits: {p.credits} | Inv: {len(p.inventory)} items"
 
     def get_hud_data(self) -> Dict[str, Any]:
         """Returns data for the HUD."""
@@ -152,6 +156,8 @@ class GameEngine:
         room = self.state.rooms[p.current_room_id]
         return {
             "hp": p.hp,
+            "mana": p.mana,
+            "bullet": p.bullet,
             "credits": p.credits,
             "room_name": room.name
         }

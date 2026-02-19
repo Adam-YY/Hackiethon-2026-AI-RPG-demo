@@ -68,6 +68,8 @@ class ThemeLoader:
         player = Player(
             current_room_id=initial_id,
             hp=player_data.get("hp", 100),
+            mana=player_data.get("mana", 50),
+            bullet=player_data.get("bullet", 5),
             credits=player_data.get("credits", 50)
         )
 

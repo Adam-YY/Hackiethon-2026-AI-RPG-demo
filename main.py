@@ -35,7 +35,7 @@ def main():
 
             # Print HUD
             hud = engine.get_hud_data()
-            print(f"\n[HP: {hud['hp']} | Credits: {hud['credits']} | Room: "
+            print(f"\n[HP: {hud['hp']} | Mana: {hud['mana']} | Bullets: {hud['bullet']} | Credits: {hud['credits']} | Room: "
                   f"{hud['room_name']}]")
             
             user_input = input("> ").strip()

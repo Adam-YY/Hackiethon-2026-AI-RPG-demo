@@ -133,6 +133,8 @@ class MemoryManager:
         compressed_memory = {
             "current_stats": {
                 "hp": player.hp,
+                "mana": player.mana,
+                "bullet": player.bullet,
                 "credits": player.credits,
                 "inventory": [item.name for item in player.inventory]
             },

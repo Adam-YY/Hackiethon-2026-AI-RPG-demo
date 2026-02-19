@@ -52,7 +52,7 @@ This file defines the map, rooms, and starting conditions.
 ```json
 {
   "initial_room_id": "start_node",
-  "player": { "hp": 100, "credits": 50 },
+  "player": { "hp": 100, "mana": 50, "bullet": 5, "credits": 50 },
   "rooms": {
     "start_node": {
       "name": "The Void",
@@ -89,7 +89,7 @@ A trigger consists of the following fields:
 - **`condition`**: The specific ID (room_id) or name (item_name) required to fire the event.
 - **`probability`**: A float between `0.0` and `1.0` (e.g., `0.5` for a 50% chance).
 - **`narrative_description`**: The text displayed to the player when the event fires.
-- **`result_effect`**: A dictionary defining changes to the player's stats (e.g., `{"hp": -10, "credits": 20}`).
+- **`result_effect`**: A dictionary defining changes to the player's stats (e.g., `{"hp": -10, "mana": -5, "bullet": -1, "credits": 20}`).
 
 ### Example `events.json`
 ```json
@@ -101,7 +101,7 @@ A trigger consists of the following fields:
       "condition": "dark_alley",
       "probability": 1.0,
       "narrative_description": "You trip over a hidden wire! An alarm blares.",
-      "result_effect": { "hp": -5 }
+      "result_effect": { "hp": -5, "mana": -10 }
     }
   ]
 }
@@ -115,7 +115,7 @@ Iron Skeleton maintains two distinct layers of state to serve different purposes
 
 1.  **History Log (`logs/session_*.txt`)**: An append-only, human-readable file. It captures every player command and every system response. This is used for debugging and reviewing play sessions.
 2.  **Memory Snapshot (`saves/memory.json`)**: A machine-readable JSON file. It contains a "compressed" view of the current state, including:
-    - Current Stats (HP, Credits, Inventory).
+    - Current Stats (HP, Mana, Bullets, Credits, Inventory).
     - Immediate Surroundings (Room name, exits, items).
     - Sliding window of the last 5 actions.
     *This file is specifically designed to be passed to an AI GM (Phase 2) as context.*
