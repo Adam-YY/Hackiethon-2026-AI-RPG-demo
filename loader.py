@@ -23,11 +23,15 @@ class ThemeLoader:
             WorldState: The validated world state.
 
         Raises:
-            FileNotFoundError: If world.json is missing.
+            FileNotFoundError: If world.json or story.json is missing.
             ValueError: If the JSON is malformed or contains invalid scene references.
         """
         if not self.world_file.exists():
             raise FileNotFoundError(f"Missing required world file: {self.world_file}")
+
+        # Load story data for script references
+        story_data = self.load_story()
+        scripts = story_data.get("scripts", {})
 
         with self.world_file.open("r") as f:
             try:
@@ -38,6 +42,19 @@ class ThemeLoader:
         # 1. Parse Scenes
         scenes: Dict[str, Scene] = {}
         for scene_id, scene_data in data.get("scenes", {}).items():
+            # Narrative text lookup
+            story_ref = scene_data.get("story_ref")
+            if not story_ref:
+                raise ValueError(f"Scene '{scene_id}' is missing a 'story_ref'.")
+            
+            if story_ref not in scripts:
+                raise ValueError(
+                    f"Validation Error: Scene '{scene_id}' references story_ref '{story_ref}', "
+                    f"but it was not found in story.json scripts."
+                )
+            
+            scene_text = scripts[story_ref]
+
             options = [
                 Option(
                     id=opt.get("id"),
@@ -48,7 +65,7 @@ class ThemeLoader:
             ]
             scenes[scene_id] = Scene(
                 id=scene_id,
-                text=scene_data.get("text", ""),
+                text=scene_text,
                 is_end=scene_data.get("is_end", False),
                 options=options
             )
@@ -79,19 +96,15 @@ class ThemeLoader:
 
         return WorldState(scenes=scenes, player=player)
 
-    def load_story(self) -> Dict[str, str]:
+    def load_story(self) -> Dict[str, Any]:
         """Parses story.json from the theme folder.
 
         Returns:
-            Dict[str, str]: Story data (title, intro_text, etc.).
+            Dict[str, Any]: Story data (title, intro_text, scripts, etc.).
         """
         story_file = self.theme_path / "story.json"
         if not story_file.exists():
-            return {
-                "title": "A New Adventure",
-                "intro_text": "You stand at the beginning of a mysterious journey...",
-                "winning_condition": "Unknown"
-            }
+            raise FileNotFoundError(f"Missing required story file: {story_file}")
 
         with story_file.open("r") as f:
             try:

@@ -8,11 +8,11 @@ The codebase is organized into modular components, ensuring a clean separation b
 
 ```text
 HackMelb/
-├── assets/themes/      # JSON-based story definitions (WasteLand, Cyberpunk, etc.)
+├── assets/themes/      # JSON-based story definitions (WasteLand, etc.)
 ├── logs/               # Human-readable session logs (.txt)
 ├── saves/              # Machine-readable state snapshots (.json)
 ├── engine.py           # Core narrative engine & scene transition logic
-├── loader.py           # JSON validation and theme loading logic
+├── loader.py           # JSON validation and narrative/graph mapping
 ├── main.py             # Entry point and interactive loop
 ├── models.py           # Data structures (Scenes, Options, Player, WorldState)
 ├── systems.py          # Event triggers, Logging, and Memory management
@@ -21,8 +21,8 @@ HackMelb/
 ```
 
 ### Component Roles
-- **`models.py`**: Uses Python dataclasses to define the core narrative entities (`Scene`, `Option`). It ensures type safety for the player state (HP, Mana, Bullets, Credits) and the narrative graph.
-- **`loader.py`**: The `ThemeLoader` validates the integrity of the scene graph, ensuring no "broken" choice paths exist and raising clear errors for malformed JSON.
+- **`models.py`**: Uses Python dataclasses to define core entities. `Scene` objects hold narrative text and decision options.
+- **`loader.py`**: The `ThemeLoader` performs a cross-file lookup between `world.json` (the logic graph) and `story.json` (the narrative content). It ensures every logic node has corresponding story text.
 - **`systems.py`**: Houses the persistence layer. Includes `EventManager` for deterministic triggers, `NarrativeLogger` for human audits, and `MemoryManager` for AI-ready state snapshots.
 - **`engine.py`**: The `GameEngine` manages scene transitions, applies event effects, and maintains the player's internal state.
 
@@ -46,38 +46,41 @@ graph TD
 
 ## Theme Creation Guide
 
-Iron Skeleton follows a "Content-First" philosophy. You can create a complete story by adding a folder to `assets/themes/` without editing any Python code.
+Iron Skeleton separates **Logic** from **Content**. You can create a complete story by adding a folder to `assets/themes/` and defining the following files:
 
-### Step 1: Define the World (`world.json`)
-This defines the narrative graph and starting stats.
+### Step 1: Define the Narrative (`story.json`)
+This file contains the "scripts" or long-form text for your game, indexed by unique keys.
+```json
+{
+  "title": "My Epic Quest",
+  "intro_text": "Welcome to the adventure...",
+  "scripts": {
+    "start_scene_text": "You wake up in a cold, dark room...",
+    "game_over_text": "The darkness consumes you."
+  }
+}
+```
+
+### Step 2: Define the Logic Graph (`world.json`)
+This file defines how scenes connect. Instead of raw text, it uses `story_ref` to point to keys in `story.json`.
 ```json
 {
   "initial_scene_id": "intro",
   "player": { "hp": 100, "mana": 50, "bullet": 5, "credits": 50 },
   "scenes": {
     "intro": {
-      "text": "You wake up in a desert.",
+      "story_ref": "start_scene_text",
       "is_end": false,
       "options": [
-        { "id": 1, "text": "Walk North", "next_scene_id": "oasis" },
-        { "id": 2, "text": "Sleep", "next_scene_id": "game_over" }
+        { "id": 1, "text": "Open door", "next_scene_id": "hallway" }
       ]
     },
     "game_over": {
-      "text": "You never woke up.",
+      "story_ref": "game_over_text",
       "is_end": true,
       "options": []
     }
   }
-}
-```
-
-### Step 2: Set the Meta-Data (`story.json`)
-```json
-{
-  "title": "WasteLand",
-  "intro_text": "A world of magic and dust...",
-  "winning_condition": "Find the Dragon Egg."
 }
 ```
 
@@ -93,32 +96,12 @@ Events allow for mechanical consequences based on narrative progression. These a
 - **`narrative_description`**: Text displayed when the event occurs.
 - **`result`**: Dictionary defining stat changes (e.g., `{"mana": 20, "hp": -10}`).
 
-### Example `events.json`
-```json
-{
-  "triggers": [
-    {
-      "event_id": "magical_well",
-      "trigger_type": "scene_enter",
-      "condition": "script_9_2",
-      "probability": 1.0,
-      "narrative_description": "You feel mana surging through you.",
-      "result": { "mana": 20 }
-    }
-  ]
-}
-```
-
 ---
 
 ## State Management & Persistence
 
 1.  **Narrative Log (`logs/session_*.txt`)**: A human-readable audit log. It records every scene description and every choice made by the player.
-2.  **Memory Snapshot (`saves/memory.json`)**: A machine-readable snapshot updated every turn. It contains:
-    - **`player_state`**: All current stats and inventory.
-    - **`current_location`**: The active scene ID.
-    - **`recent_history`**: A sliding window of the last 5 interactions.
-    *Optimized for LLM context injection.*
+2.  **Memory Snapshot (`saves/memory.json`)**: A machine-readable snapshot updated every turn. Optimized for LLM context injection.
 
 ---
 
@@ -127,4 +110,3 @@ To start a story:
 ```bash
 python3 main.py WasteLand
 ```
-*(Available themes: WasteLand, Cyberpunk, Default)*

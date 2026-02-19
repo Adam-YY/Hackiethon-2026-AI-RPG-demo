@@ -1,0 +1,3 @@
+Scene Description: The city council has assigned you a dangerous task to investigate the outskirts. Will you accept?
+Selected Option: Accept the task
+Scene Description: You accept the task. Your supervisor asks if you want to allocate more people to your team.

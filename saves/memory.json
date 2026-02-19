@@ -1,33 +1,17 @@
 {
   "player_state": {
-    "hp": 80,
-    "mana": 40,
-    "bullet": 3,
+    "hp": 100,
+    "mana": 50,
+    "bullet": 5,
     "credits": 50,
     "inventory": []
   },
-  "current_location": "script_accept_offer",
+  "current_location": "script_2",
   "recent_history": [
     {
       "action": "1",
-      "result": "Road 1"
-    },
-    {
-      "action": "2",
-      "result": "Fight the echo with spells and items"
-    },
-    {
-      "action": "1",
-      "result": "Go back to the split road"
-    },
-    {
-      "action": "2",
-      "result": "Road 2"
-    },
-    {
-      "action": "1",
-      "result": "Take the egg's offer"
+      "result": "Accept the task"
     }
   ],
-  "timestamp": 1771508814.168409
+  "timestamp": 1771509960.149845
 }

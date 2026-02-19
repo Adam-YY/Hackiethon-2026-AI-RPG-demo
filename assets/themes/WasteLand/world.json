@@ -8,7 +8,7 @@
   },
   "scenes": {
     "script_1": {
-      "text": "The city council has assigned you a dangerous task to investigate the outskirts. Will you accept?",
+      "story_ref": "script_1",
       "is_end": false,
       "options": [
         {
@@ -24,7 +24,7 @@
       ]
     },
     "script_2": {
-      "text": "You accept the task. Your supervisor asks if you want to allocate more people to your team.",
+      "story_ref": "script_2",
       "is_end": false,
       "options": [
         {
@@ -40,12 +40,12 @@
       ]
     },
     "script_3": {
-      "text": "You refuse the task. Your career in the city guard comes to an abrupt end, and you wonder what might have been.",
+      "story_ref": "script_3",
       "is_end": true,
       "options": []
     },
     "script_4": {
-      "text": "You head out with your colleagues. Deep in the wasteland, you hear a strange sound and see a faint glow.",
+      "story_ref": "script_4",
       "is_end": false,
       "options": [
         {
@@ -61,7 +61,7 @@
       ]
     },
     "script_5": {
-      "text": "You venture out alone. You find strange trails leading into the mist.",
+      "story_ref": "script_5",
       "is_end": false,
       "options": [
         {
@@ -77,12 +77,12 @@
       ]
     },
     "script_6": {
-      "text": "You and your colleagues follow the sound and discover a dragon egg. You report it to the City, and it is used as fuel. End of game.",
+      "story_ref": "script_6",
       "is_end": true,
       "options": []
     },
     "script_7": {
-      "text": "You keep the discovery to yourself. The colleagues seem oblivious.",
+      "story_ref": "script_7",
       "is_end": false,
       "options": [
         {
@@ -98,12 +98,12 @@
       ]
     },
     "script_8": {
-      "text": "You decide not to pursue the mystery. Life continues as usual, but the world feels a bit smaller. End of game.",
+      "story_ref": "script_8",
       "is_end": true,
       "options": []
     },
     "script_9_1": {
-      "text": "Following the trails, you reach a three-way split in the path. Which road will you take?",
+      "story_ref": "script_9_1",
       "is_end": false,
       "options": [
         {
@@ -124,7 +124,7 @@
       ]
     },
     "script_9_2": {
-      "text": "You return at night and find a magical trace. You gain 20 mana from the echo of the trace. A three-way split lies ahead.",
+      "story_ref": "script_9_2",
       "is_end": false,
       "options": [
         {
@@ -145,7 +145,7 @@
       ]
     },
     "script_11": {
-      "text": "You encounter echoes—magical remnants of dead bodies. They are hostile.",
+      "story_ref": "script_11",
       "is_end": false,
       "options": [
         {
@@ -161,7 +161,7 @@
       ]
     },
     "script_10": {
-      "text": "Victory! You spent 20 Mana and 2 bullets, but gained 10 mana from the echo using your sorcerer's ring.",
+      "story_ref": "script_10",
       "is_end": false,
       "options": [
         {
@@ -177,7 +177,7 @@
       ]
     },
     "script_12": {
-      "text": "You find the Dragon's Nest. The egg pulses with power and offers you a choice.",
+      "story_ref": "script_12",
       "is_end": false,
       "options": [
         {
@@ -193,17 +193,17 @@
       ]
     },
     "script_13": {
-      "text": "You return home, safe but forever changed by what you saw. End of game.",
+      "story_ref": "script_13",
       "is_end": true,
       "options": []
     },
     "script_accept_offer": {
-      "text": "You gain immense power and start your journey out of the city. The world is yours to command. End of game.",
+      "story_ref": "script_accept_offer",
       "is_end": true,
       "options": []
     },
     "script_reject_offer": {
-      "text": "You battle the dragon egg in an epic confrontation. The wasteland shakes from the impact. End of game.",
+      "story_ref": "script_reject_offer",
       "is_end": true,
       "options": []
     }
