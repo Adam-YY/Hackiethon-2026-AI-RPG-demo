@@ -29,7 +29,7 @@
       "options": [
         {
           "id": 1,
-          "text": "Go with colleagues",
+          "text": "Go with colleagues (ask supervisor to allocate more people)",
           "next_scene_id": "script_4"
         },
         {
@@ -87,12 +87,12 @@
       "options": [
         {
           "id": 1,
-          "text": "Ignore the sound",
+          "text": "Ignore",
           "next_scene_id": "script_8"
         },
         {
           "id": 2,
-          "text": "Go back at night alone",
+          "text": "Go at night",
           "next_scene_id": "script_9_2"
         }
       ]
@@ -166,7 +166,7 @@
       "options": [
         {
           "id": 1,
-          "text": "Go back to the split road",
+          "text": "Go back to the split road (Decision 4)",
           "next_scene_id": "script_9_1"
         },
         {

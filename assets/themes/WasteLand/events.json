@@ -1,9 +1,19 @@
 {
   "triggers": [
     {
-      "event_id": "magical_trace_mana",
+      "event_id": "magical_trace_mana_9_2",
       "trigger_type": "scene_enter",
       "condition": "script_9_2",
+      "probability": 1.0,
+      "narrative_description": "The echo of the magical trace resonates with your core.",
+      "result": {
+        "mana": 20
+      }
+    },
+    {
+      "event_id": "magical_trace_mana_9_1",
+      "trigger_type": "scene_enter",
+      "condition": "script_9_1",
       "probability": 1.0,
       "narrative_description": "The echo of the magical trace resonates with your core.",
       "result": {
