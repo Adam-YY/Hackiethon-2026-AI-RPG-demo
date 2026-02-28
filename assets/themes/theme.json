@@ -7,26 +7,35 @@
     },
     "panel": {
         "colours": {
-            "dark_bg": "#1a1a1aee",
-            "normal_border": "#00ffccaa"
+            "dark_bg": "#151719ee",
+            "normal_border": "#3a444aaa"
         }
     },
     "text_box": {
         "colours": {
-            "dark_bg": "#0d0d0dee",
-            "normal_text": "#e0e0e0",
-            "normal_border": "#ff0055aa"
+            "dark_bg": "#0a0b0cee",
+            "normal_text": "#e2dfd2",
+            "normal_border": "#3a444aaa",
+            "link_text": "#c58b3a",
+            "link_hover": "#fdd978",
+            "link_selected": "#ffffff"
         },
         "font": {
             "name": "arial",
-            "size": "20",
+            "size": "22",
             "antialiased": "1"
         },
         "bold_font": {
             "name": "arial",
-            "size": "20",
+            "size": "22",
             "bold": "1",
             "antialiased": "1"
+        },
+        "misc": {
+            "padding": "25, 25",
+            "link_normal_underline": "0",
+            "link_hover_underline": "1",
+            "line_spacing": "1.1"
         }
     },
     "button": {
@@ -34,10 +43,10 @@
             "normal_bg": "#2a2a2a",
             "hovered_bg": "#3a3a3a",
             "active_bg": "#4a4a4a",
-            "normal_text": "#00ffcc",
+            "normal_text": "#80acaa",
             "hovered_text": "#ffffff",
-            "normal_border": "#00ffcc88",
-            "hovered_border": "#00ffcc"
+            "normal_border": "#4c6b6a",
+            "hovered_border": "#80acaa"
         },
         "font": {
             "name": "arial",
@@ -47,32 +56,41 @@
     },
     "label": {
         "colours": {
-            "normal_text": "#00ffcc"
+            "normal_text": "#80acaa"
         },
         "font": {
             "name": "arial",
-            "size": "24",
+            "size": "22",
             "bold": "1"
         }
     },
     "text_entry_line": {
         "colours": {
-            "normal_bg": "#1a1a1a",
-            "normal_text": "#ff0055",
-            "normal_border": "#ff0055"
+            "normal_bg": "#151719",
+            "normal_text": "#80acaa",
+            "normal_border": "#4c6b6a",
+            "selected_border": "#80acaa"
         }
     },
     "hud_panel": {
         "prototype": "panel",
         "colours": {
-            "dark_bg": "#101010cc"
+            "dark_bg": "#0a0b0ccc",
+            "normal_border": "#00000000"
         }
     },
     "log_box": {
         "prototype": "text_box",
+        "colours": {
+            "dark_bg": "#151719cc",
+            "normal_border": "#3a444a55"
+        },
         "font": {
             "name": "arial",
-            "size": "14"
+            "size": "16"
+        },
+        "misc": {
+            "padding": "10, 15"
         }
     }
 }

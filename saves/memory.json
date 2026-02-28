@@ -6,13 +6,29 @@
     "credits": 50,
     "inventory": []
   },
-  "current_location": "script_3",
+  "current_location": "generated_4f7e2562-4f7e-4f7e-4f7e-4f7e4f7e4f7e",
   "recent_history": [
     {
       "action": "2",
-      "result": "Refuse the task"
+      "result": "Go along"
+    },
+    {
+      "action": "Gain the power by becoming the dragon",
+      "result": "You feel the power of the Dragon coursing through your veins as you accepted its offer to become its Guardian. The air is filled with the hum of awakening magic. The machines above begin to falter."
+    },
+    {
+      "action": "2",
+      "result": "You chose to reject the Dragon Egg's plea, deciding the city needs protection from the potential chaos it could bring. The Egg's glow faded, and the murmuring pipes seemed to shudder in disapproval. The Echoes, once docile, now stir with hostility."
+    },
+    {
+      "action": "1",
+      "result": "You decided to reject the Dragon Egg's offer, choosing instead to protect the city from the potential magical resurgence. The murmur of the pipes grows louder as you make your way back to the main sewer tunnel. The city's machinery hums in the distance, a comforting sound."
+    },
+    {
+      "action": "I am dead",
+      "result": "As you lay lifeless on the cold stone floor, the Dragon Egg's glow fades, and the murmuring pipes fall silent. The Echoes gather around you, their undead faces expressionless. The city's machinery hums on, oblivious to your demise."
     }
   ],
-  "turn_count": 2,
-  "timestamp": 1772262239.49925
+  "turn_count": 7,
+  "timestamp": 1772284079.810038
 }
