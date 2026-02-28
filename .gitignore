@@ -148,3 +148,17 @@ cython_debug/
 
 # PyCharm
 .idea/
+
+# Integrated from temp_ai_repo
+.env.local
+.env.*.local
+*.env
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.tmp
+.cache/
+logs/

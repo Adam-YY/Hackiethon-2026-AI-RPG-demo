@@ -75,3 +75,13 @@ class WorldState:
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+@dataclass
+class GameContext:
+    """Tracks global session-specific state.
+
+    Attributes:
+        turn_count (int): The number of turns elapsed in the current session.
+    """
+    turn_count: int = 0

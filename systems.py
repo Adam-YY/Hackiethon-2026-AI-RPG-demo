@@ -96,6 +96,11 @@ class NarrativeLogger:
             f.flush()
             os.fsync(f.fileno())
 
+    def reset_game(self):
+        """Wipes the current session log file."""
+        with self.file_path.open("w", encoding="utf-8") as f:
+            f.truncate(0)
+
 
 class MemoryManager:
     """Handles machine-readable state snapshots and interaction history."""
@@ -111,7 +116,7 @@ class MemoryManager:
         self.history_window: List[Dict[str, str]] = []
 
     def add_interaction(self, user_input: str, game_response: str):
-        """Adds an interaction to the sliding window (max 10).
+        """Adds an interaction to the sliding window (max 5).
 
         Args:
             user_input (str): The player's command.
@@ -122,16 +127,24 @@ class MemoryManager:
             "result": game_response.strip()
         })
         
-        if len(self.history_window) > 10:
+        if len(self.history_window) > 5:
             self.history_window.pop(0)
 
-    def save_snapshot(self, player: Player, current_scene_id: str, recent_history: List[Dict[str, str]]):
+    def reset_game(self):
+        """Clears interaction history and wipes the memory.json file."""
+        self.history_window = []
+        if self.save_path.exists():
+            with self.save_path.open("w", encoding="utf-8") as f:
+                json.dump({}, f)
+
+    def save_snapshot(self, player: Player, current_scene_id: str, recent_history: List[Dict[str, str]], turn_count: int = 0):
         """Saves a compressed memory.json for AI consumption.
 
         Args:
             player (Player): The player object.
             current_scene_id (str): The ID of the current scene.
             recent_history (List[Dict[str, str]]): Recent interaction history.
+            turn_count (int): The current turn number.
         """
         compressed_memory = {
             "player_state": {
@@ -142,7 +155,8 @@ class MemoryManager:
                 "inventory": [item.name for item in player.inventory]
             },
             "current_location": current_scene_id,
-            "recent_history": recent_history[-5:],
+            "recent_history": recent_history,
+            "turn_count": turn_count,
             "timestamp": time.time()
         }
 
@@ -151,7 +165,7 @@ class MemoryManager:
 
     def save_context(self, state: WorldState):
         """Saves a compressed memory.json for AI consumption (Legacy/Internal)."""
-        self.save_snapshot(state.player, state.player.current_scene_id, self.history_window)
+        self.save_snapshot(state.player, state.player.current_scene_id, self.history_window, 0)
 
     def save_full_snapshot(self, state: WorldState):
         """Serializes current full state and history window to JSON.

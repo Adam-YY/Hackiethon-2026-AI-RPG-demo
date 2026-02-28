@@ -1,112 +1,71 @@
-# Iron Skeleton: Visual Novel Engine
+# Iron Skeleton: Visual Novel Engine (Pygame Edition)
 
-Iron Skeleton is a deterministic, data-driven **Visual Novel and Decision Tree engine** built in Python 3.10+. It serves as a robust "headless" core designed for Phase 2 integration with Large Language Models (LLMs), focusing on scene-based narrative flow, state serialization, and extensible event triggers.
+Iron Skeleton is a deterministic, data-driven **Visual Novel and Decision Tree engine** built in Python 3.10+. It features a beautiful, modular UI powered by `pygame_gui` and is designed for Phase 2 integration with Large Language Models (LLMs).
 
 ## Project Structure
 
-The codebase is organized into modular components, ensuring a clean separation between data definitions, narrative logic, and state persistence.
+The codebase is organized into modular components, separating data, narrative logic, and the graphical interface.
 
 ```text
 HackMelb/
-├── assets/themes/      # JSON-based story definitions (WasteLand, etc.)
+├── assets/themes/      # Story definitions and UI theme.json
 ├── logs/               # Human-readable session logs (.txt)
 ├── saves/              # Machine-readable state snapshots (.json)
-├── engine.py           # Core narrative engine & scene transition logic
+├── game_master.py      # The "Director" - manages Dual-Mode (Logic/AI) transitions
+├── interface.py        # Graphical UI Layer (pygame_gui implementation)
 ├── loader.py           # JSON validation and narrative/graph mapping
-├── main.py             # Entry point and interactive loop
+├── main.py             # Entry point
 ├── models.py           # Data structures (Scenes, Options, Player, WorldState)
 ├── systems.py          # Event triggers, Logging, and Memory management
-├── templates.py        # String templates for UI responses
-└── world.py            # World state initialization helper
+├── world.py            # World state initialization helper
+└── AI_model.py         # Phase 2: LLM Integration Bridge (Groq/Llama 3.1)
 ```
 
 ### Component Roles
-- **`models.py`**: Uses Python dataclasses to define core entities. `Scene` objects hold narrative text and decision options.
-- **`loader.py`**: The `ThemeLoader` performs a cross-file lookup between `world.json` (the logic graph) and `story.json` (the narrative content). It ensures every logic node has corresponding story text.
-- **`systems.py`**: Houses the persistence layer. Includes `EventManager` for deterministic triggers, `NarrativeLogger` for human audits, and `MemoryManager` for AI-ready state snapshots.
-- **`engine.py`**: The `GameEngine` manages scene transitions, applies event effects, and maintains the player's internal state.
+- **`interface.py`**: The `VisualNovelUI` class manages the HUD, Story Log, and Dialogue boxes. It uses `pygame_gui` for a modern look and feel, including typewriter effects and floating notifications.
+- **`game_master.py`**: Coordinates between the deterministic world logic and the AI takeover mode. It applies stat changes and triggers events.
+- **`loader.py`**: Handles cross-file lookup between `world.json` (logic) and `story.json` (narrative).
+- **`systems.py`**: Manages the persistence layer (`NarrativeLogger`, `MemoryManager`) and the `EventManager`.
 
-### Engine Core Loop
-The engine follows a strict narrative cycle:
+## Key Features (Advanced Logic Layer)
 
-```mermaid
-graph TD
-    HUD[Display Player Stats] --> SceneText[Print Scene Narrative]
-    SceneText --> EventCheck[Check & Apply Events]
-    EventCheck --> EndCheck{Is End Scene?}
-    EndCheck -- Yes --> End[Exit Story]
-    EndCheck -- No --> Choices[Display Numbered Choices]
-    Choices --> Input[User Input]
-    Input --> Persistence[Log & Save State]
-    Persistence --> SceneTransition[Update Current Scene]
-    SceneTransition --> HUD
-```
+- **Dynamic Narrative Chunking**: Narrative text is automatically split into manageable 3-sentence chunks. Players can click through chunks with a smooth, flicker-free typewriter effect (0.05s/char).
+- **HP-Based Game Over**: Real-time tracking of player vitals (HP, Mana, Bullets, Credits). If HP reaches 0, the engine triggers a "SYSTEM FAILURE" state.
+- **Session Persistence & Restart**: At the end of a session (narrative conclusion or death), players can choose to **RETRY SESSION** (resetting all stats and progress) or **QUIT TO DESKTOP**.
+- **Mode B (AI Takeover)**: Integrated LLM support for custom player actions. When a player types a custom action, the engine enters a 3-round AI detour before re-railing back to the deterministic story graph.
+- **Event-Driven Triggers**: Hidden triggers in `events.json` can modify player stats based on scene entry or specific conditions.
 
----
+## UI & Aesthetics
+
+The engine uses a **Dark Wasteland / Cyberpunk** theme defined in `assets/themes/theme.json`.
+- **HUD Bar**: Displays real-time HP, Mana, Bullets, and Credits.
+- **Story Log**: A vertically scrollable panel on the right tracking player choices in real-time.
+- **Dialogue Box**: Features an improved typewriter effect (`TEXT_EFFECT_TYPING_APPEAR`) with manual skip support (click to show full chunk).
+- **Floating Notifications**: Visual feedback for stat changes (e.g., "+20 Mana") that float up and fade away.
+- **End-Game Overlay**: Dedicated Retry/Quit buttons presented via a central UI overlay.
 
 ## Theme Creation Guide
 
-Iron Skeleton separates **Logic** from **Content**. You can create a complete story by adding a folder to `assets/themes/` and defining the following files:
-
-### Step 1: Define the Narrative (`story.json`)
-This file contains the "scripts" or long-form text for your game, indexed by unique keys.
-```json
-{
-  "title": "My Epic Quest",
-  "intro_text": "Welcome to the adventure...",
-  "scripts": {
-    "start_scene_text": "You wake up in a cold, dark room...",
-    "game_over_text": "The darkness consumes you."
-  }
-}
-```
-
-### Step 2: Define the Logic Graph (`world.json`)
-This file defines how scenes connect. Instead of raw text, it uses `story_ref` to point to keys in `story.json`.
-```json
-{
-  "initial_scene_id": "intro",
-  "player": { "hp": 100, "mana": 50, "bullet": 5, "credits": 50 },
-  "scenes": {
-    "intro": {
-      "story_ref": "start_scene_text",
-      "is_end": false,
-      "options": [
-        { "id": 1, "text": "Open door", "next_scene_id": "hallway" }
-      ]
-    },
-    "game_over": {
-      "story_ref": "game_over_text",
-      "is_end": true,
-      "options": []
-    }
-  }
-}
-```
-
----
-
-## The Event System
-
-Events allow for mechanical consequences based on narrative progression. These are defined in `events.json`.
-
-### Trigger Schema
-- **`condition`**: The `scene_id` that triggers the event.
-- **`probability`**: Chance of firing (e.g., `1.0` for 100%).
-- **`narrative_description`**: Text displayed when the event occurs.
-- **`result`**: Dictionary defining stat changes (e.g., `{"mana": 20, "hp": -10}`).
-
----
+Define your story in `assets/themes/[ThemeName]/`:
+1.  **`story.json`**: Narrative scripts.
+2.  **`world.json`**: Logic graph and initial player stats.
+3.  **`events.json`**: Stat triggers and descriptions.
 
 ## State Management & Persistence
 
-1.  **Narrative Log (`logs/session_*.txt`)**: A human-readable audit log. It records every scene description and every choice made by the player.
-2.  **Memory Snapshot (`saves/memory.json`)**: A machine-readable snapshot updated every turn. Optimized for LLM context injection.
+1.  **Narrative Log (`logs/session_*.txt`)**: Human-readable audit of the journey.
+2.  **Memory Snapshot (`saves/memory.json`)**: JSON snapshot optimized for LLM context.
 
----
+## Setup & Running
 
-## Running the Engine
-To start a story:
-```bash
-python3 main.py WasteLand
-```
+1.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+2.  **Start the Engine**:
+    ```bash
+    python3 main.py
+    ```
+
+## Phase 2: Neuro-Symbolic Integration
+The engine supports a "Custom Action" button. When clicked, it enters **Mode B (AI Takeover)**, where a Llama 3.1 model generates dynamic outcomes based on player input, before re-railing back to the deterministic story graph.

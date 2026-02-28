@@ -1,0 +1,78 @@
+{
+    "defaults": {
+        "font": {
+            "name": "arial",
+            "size": "18"
+        }
+    },
+    "panel": {
+        "colours": {
+            "dark_bg": "#1a1a1aee",
+            "normal_border": "#00ffccaa"
+        }
+    },
+    "text_box": {
+        "colours": {
+            "dark_bg": "#0d0d0dee",
+            "normal_text": "#e0e0e0",
+            "normal_border": "#ff0055aa"
+        },
+        "font": {
+            "name": "arial",
+            "size": "20",
+            "antialiased": "1"
+        },
+        "bold_font": {
+            "name": "arial",
+            "size": "20",
+            "bold": "1",
+            "antialiased": "1"
+        }
+    },
+    "button": {
+        "colours": {
+            "normal_bg": "#2a2a2a",
+            "hovered_bg": "#3a3a3a",
+            "active_bg": "#4a4a4a",
+            "normal_text": "#00ffcc",
+            "hovered_text": "#ffffff",
+            "normal_border": "#00ffcc88",
+            "hovered_border": "#00ffcc"
+        },
+        "font": {
+            "name": "arial",
+            "size": "16",
+            "bold": "1"
+        }
+    },
+    "label": {
+        "colours": {
+            "normal_text": "#00ffcc"
+        },
+        "font": {
+            "name": "arial",
+            "size": "24",
+            "bold": "1"
+        }
+    },
+    "text_entry_line": {
+        "colours": {
+            "normal_bg": "#1a1a1a",
+            "normal_text": "#ff0055",
+            "normal_border": "#ff0055"
+        }
+    },
+    "hud_panel": {
+        "prototype": "panel",
+        "colours": {
+            "dark_bg": "#101010cc"
+        }
+    },
+    "log_box": {
+        "prototype": "text_box",
+        "font": {
+            "name": "arial",
+            "size": "14"
+        }
+    }
+}
