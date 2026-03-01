@@ -267,57 +267,78 @@ Be concise but evocative.
     
     return prompt
 
-def build_node_generation_prompt(player_stats: dict, previous_action: str, turn_count: int = 0, is_re_rail_turn: bool = False, re_rail_targets: list = None):
+def build_dynamic_prompt(player_stats: dict, custom_input: str, recent_history: list, target_scene_text: str, current_turn: int, max_turns: int):
     """
-    Builds the system prompt for node generation, enforcing the JSON schema and 3-round detour logic.
+    Builds the system prompt for dynamic node generation, enforcing Semantic Re-entry, 
+    Turn Budget, and Stat Consequences.
     """
     schema_template = {
-        "id": "generated_[uuid]",
-        "text": "[Narrative text incorporating previous action]",
+        "id": "dynamic_[uuid]",
+        "text": "[Narrative text outcome]",
         "is_end": False,
+        "reached_target_plot": False,
+        "stat_changes": {
+            "hp": 0,
+            "mana": 0,
+            "bullet": 0,
+            "credits": 0
+        },
         "options": [
-            {
-                "id": 1,
-                "text": "[Logical choice 1]",
-                "next_scene_id": "dynamic_await"
-            },
-            {
-                "id": 2,
-                "text": "[Logical choice 2]",
-                "next_scene_id": "dynamic_await"
-            }
+            { "id": 1, "text": "[Choice 1]", "next_scene_id": "dynamic_await" },
+            { "id": 2, "text": "[Choice 2]", "next_scene_id": "dynamic_await" }
         ]
     }
 
-    # 10-Minute Rule: Force conclusion if turn_count >= 15
-    end_game_instruction = ""
-    if turn_count >= 15:
-        end_game_instruction = "If the turn_count is 15 or higher, you MUST set the JSON key \"is_end\" to true, and wrap up the story with a definitive Victory or Death conclusion in the \"text\" field."
-
-    # Re-rail Logic: Force AI to link back to main plot
-    re_rail_instruction = ""
-    if is_re_rail_turn and re_rail_targets:
-        targets_str = ", ".join(re_rail_targets)
-        re_rail_instruction = (
-            f"\nCRITICAL: This is the final turn of a custom detour. You MUST force the story back to the main plot. "
-            f"Set the 'next_scene_id' of your options to one of these valid world IDs: [{targets_str}]. "
-            f"Write the narrative so it logically transitions the player back to these locations."
+    # Climax Override (Global Turn Budget)
+    climax_override = ""
+    if current_turn >= max_turns:
+        climax_override = (
+            "\nCRITICAL INSTRUCTION: The game has reached its temporal limit. You must conclude the narrative immediately in this turn. "
+            "Write a final, definitive ending (either a logical Victory or Tragedy) based on the player's current health, inventory, and recent actions. "
+            "You MUST set \"is_end\": true in your JSON output, and return an empty list [] for \"options\"."
         )
+
+    # Semantic Re-entry Directive
+    steering_instruction = ""
+    if target_scene_text:
+        steering_instruction = (
+            f"\nYour goal as the Game Master is to organically steer the narrative back toward this upcoming event: [{target_scene_text}]. "
+            "If the player's current action allows for a seamless, logical transition into that event right now, set \"reached_target_plot\": true. "
+            "If they are doing something completely unrelated, continue the sandbox story, generate 2 new dynamic options, and set \"reached_target_plot\": false."
+        )
+    
+    # Stat Consequences Directive
+    stat_consequences = (
+        "\n## CONSEQUENCES:\n"
+        "You must evaluate the outcome of the player's custom action. If they do something dangerous, deduct HP. "
+        "If they use magic, deduct Mana. If they fire their weapon, deduct a Bullet. If they loot something, add Credits. "
+        "Reflect these changes as positive or negative INTEGERS in the \"stat_changes\" JSON object. "
+        "If no stats change, leave the values at 0. DO NOT return nulls or non-integers."
+    )
+
+    history_text = "\n".join([f"- {h['action']} -> {h['result']}" for h in recent_history[-5:]])
 
     prompt = f"""<|start_header_id|>system<|end_header_id|>
 
-You are a Game Engine for a "Post-Magic" Industrial RPG. Your task is to act as a Dynamic Level Designer.
-You must only return a raw, valid JSON object. Do not include markdown formatting or conversational filler.
+You are the AI Game Master for a "Post-Magic" Industrial RPG. 
+You must return only a valid JSON object matching the schema below.
 
 ## JSON Schema Template:
 {json.dumps(schema_template, indent=2)}
 
 ## Rules:
-1. "text": Incorporate the player's previous action: "{previous_action}" into the narrative. Generate exactly 1 to 3 sentences of narrative outcome. Keep it under 75 words.
-2. "options": Generate exactly 2 logical choices for the player. Set "next_scene_id" to "dynamic_await" UNLESS re-rail instructions apply.
-3. "is_end": Set to true only if the story reaches a terminal conclusion. {end_game_instruction}
-4. "player_stats": Consider current stats (HP: {player_stats.get('hp')}, Mana: {player_stats.get('mana')}) for context, but do not modify them in this JSON.
-5. "turn_count": {turn_count}{re_rail_instruction}
+1. "text": Incorporate action: "{custom_input}". Max 75 words.
+2. "options": Exactly 2 options unless "is_end" is true.
+3. "reached_target_plot": Set true only if the player has been successfully re-railed.
+{climax_override}
+{steering_instruction}
+{stat_consequences}
+
+## Player Context:
+Stats: HP={player_stats.get('hp')}, Mana={player_stats.get('mana')}, Bullets={player_stats.get('bullet')}, Credits={player_stats.get('credits')}
+Turns: {current_turn}/{max_turns}
+Recent History:
+{history_text}
 
 ## Environment:
 {GAME_WORLD_SUMMARY}

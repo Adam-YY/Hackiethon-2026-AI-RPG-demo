@@ -92,5 +92,15 @@
         "misc": {
             "padding": "10, 15"
         }
+    },
+    "@floating_note": {
+        "prototype": "text_box",
+        "colours": {
+            "dark_bg": "#00000000",
+            "normal_border": "#00000000"
+        },
+        "misc": {
+            "padding": "0, 0"
+        }
     }
 }

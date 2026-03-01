@@ -23,9 +23,10 @@ class VisualNovelUI:
         self.manager = pygame_gui.UIManager((WIDTH, HEIGHT), theme_path)
         
         # Preload specific fonts to resolve UserWarnings for bold/italic HTML tags
+        # Synchronized with size 22 from theme.json
         self.manager.preload_fonts([
-            {'name': 'arial', 'point_size': 20, 'style': 'bold', 'antialiased': '1'},
-            {'name': 'arial', 'point_size': 20, 'style': 'italic', 'antialiased': '1'}
+            {'name': 'arial', 'point_size': 22, 'style': 'bold', 'antialiased': '1'},
+            {'name': 'arial', 'point_size': 22, 'style': 'italic', 'antialiased': '1'}
         ])
 
         self.clock = pygame.time.Clock()
@@ -119,14 +120,32 @@ class VisualNovelUI:
         self.floating_notes.clear()
 
     def show_message(self, text: str):
-        """Splits narrative into chunks and displays the first."""
-        text = text.strip()
-        if text == self.full_narrative and self.is_typing:
+        """Splits narrative into chunks and displays the first. Also logs to Story Log."""
+        # BUGFIX: Aggressive ASCII Normalization
+        # Standardize whitespace and convert smart quotes/symbols to ASCII.
+        # This ensures the typewriter mask matches the rendered text length perfectly.
+        text = " ".join(text.split())
+        text = text.replace('“', '"').replace('”', '"').replace('‘', "'").replace('’', "'")
+        text = text.replace('—', '--').replace('…', '...')
+        text = text.encode("ascii", "ignore").decode("ascii")
+        
+        # HIDDEN COMMANDS: Strip [AI TAKEOVER: ...] tags
+        text = re.sub(r'\[AI TAKEOVER:.*?\]', '', text)
+        
+        if text == self.full_narrative:
             return
             
         self.full_narrative = text
         self.text_chunks = self._split_sentences(text)
         self.current_chunk_idx = 0
+
+        # BUGFIX: Add the narrative text to the Story Log ONLY ONCE
+        clean_log_text = re.sub(r'<[^>]+>', '', text) 
+        self.story_history += f"<br><br>{clean_log_text}"
+        self.log_box.set_text(self.story_history)
+        if self.log_box.scroll_bar:
+            self.log_box.scroll_bar.set_scroll_from_start_percentage(1.0)
+
         self._display_current_chunk()
 
     def _split_sentences(self, text: str) -> List[str]:
@@ -144,14 +163,50 @@ class VisualNovelUI:
         if not self.text_chunks: return
         chunk = self.text_chunks[self.current_chunk_idx]
         
+        # 1. Hard Reset and Visual Lock
         self.dialogue_box.set_active_effect(None)
         self.dialogue_box.set_text("")
+        self.dialogue_box.hide()
+        
+        # 2. Pre-Sync: Clear old layout data
         self.manager.update(0.01)
         
+        # 3. Layout Initialization: Set text while hidden
         self.is_typing = True
         self.dialogue_box.set_text(chunk)
+        
+        # 4. MASK SYNCHRONIZATION
+        # Update multiple times to ensure internal HTML parsing is complete
+        for _ in range(3):
+            self.manager.update(0.01)
+        
+        # 5. Apply Effect to stabilized layout
         self.dialogue_box.set_active_effect(pygame_gui.TEXT_EFFECT_TYPING_APPEAR, 
                                           params={'time_per_letter': 0.05})
+        
+        # 6. Final Tick & Reveal
+        self.manager.update(0.01)
+        self.dialogue_box.show()
+        
+        # Ensure we start at the top of long chunks
+        if self.dialogue_box.scroll_bar:
+            self.dialogue_box.scroll_bar.set_scroll_from_start_percentage(0.0)
+        
+        # 4. Apply Effect: Initialize the typewriter mask
+        self.dialogue_box.set_active_effect(pygame_gui.TEXT_EFFECT_TYPING_APPEAR, 
+                                          params={'time_per_letter': 0.05})
+        
+        # 5. TRIPLE-SYNC: Force the engine to process the mask BEFORE revealing
+        # This prevents the 'ghost frame' where the end of the text shows
+        self.manager.update(0.01)
+        self.manager.update(0.01)
+        self.manager.update(0.01)
+        
+        self.dialogue_box.show()
+        
+        # Ensure we start at the top of long chunks
+        if self.dialogue_box.scroll_bar:
+            self.dialogue_box.scroll_bar.set_scroll_from_start_percentage(0.0)
 
     def next_chunk(self) -> bool:
         """Advances to the next text chunk. Returns False if done."""
@@ -188,14 +243,18 @@ class VisualNovelUI:
         else:
             self.screen.fill((40, 40, 40))
 
-    def spawn_floating_notification(self, text: str, color_hex: str = "#00ffcc"):
+    def spawn_floating_notification(self, text: str, color_hex: any = "#00ffcc"):
         import random
-        start_x = (WIDTH - LOG_WIDTH) // 2 + random.randint(-100, 100)
-        start_y = HEIGHT // 2 + random.randint(-50, 50)
+        # Convert RGB tuple to Hex string if necessary for HTML color tag
+        if isinstance(color_hex, tuple):
+            color_hex = '#%02x%02x%02x' % color_hex
+
+        start_x = (WIDTH - LOG_WIDTH) // 2 + random.randint(-150, 150)
+        start_y = HEIGHT // 2 + random.randint(-100, 50)
         
         note = UITextBox(
-            html_text=f'<font color={color_hex}>{text}</font>',
-            relative_rect=pygame.Rect(start_x, start_y, 250, 50),
+            html_text=f'<b><font color={color_hex} size=5>{text}</font></b>',
+            relative_rect=pygame.Rect(start_x, start_y, 300, 60),
             manager=self.manager,
             object_id=ObjectID(class_id="@floating_note")
         )

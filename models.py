@@ -25,11 +25,15 @@ class Scene:
         text (str): The narrative text of the scene.
         is_end (bool): Whether this scene is a terminal node.
         options (List[Option]): A list of choices available to the player.
+        reached_target_plot (bool): Flag for AI-to-deterministic transition.
+        stat_changes (Dict[str, int]): Consequences of the scene/action.
     """
     id: str
     text: str
     is_end: bool = False
     options: List[Option] = field(default_factory=list)
+    reached_target_plot: bool = False
+    stat_changes: Dict[str, int] = field(default_factory=lambda: {"hp": 0, "mana": 0, "bullet": 0, "credits": 0})
 
 
 @dataclass

@@ -183,12 +183,12 @@
         {
           "id": 1,
           "text": "Take the egg's offer",
-          "next_scene_id": "script_accept_offer"
+          "next_scene_id": "ai_takeover_accept_offer"
         },
         {
           "id": 2,
           "text": "Reject the offer",
-          "next_scene_id": "script_reject_offer"
+          "next_scene_id": "ai_takeover_reject_offer"
         }
       ]
     },
@@ -197,14 +197,14 @@
       "is_end": true,
       "options": []
     },
-    "script_accept_offer": {
+    "ai_takeover_accept_offer": {
       "story_ref": "script_accept_offer",
-      "is_end": true,
+      "is_end": false,
       "options": []
     },
-    "script_reject_offer": {
+    "ai_takeover_reject_offer": {
       "story_ref": "script_reject_offer",
-      "is_end": true,
+      "is_end": false,
       "options": []
     }
   }
