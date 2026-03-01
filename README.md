@@ -42,6 +42,8 @@ The engine uses a **Dark Wasteland / Cyberpunk** theme defined in `assets/themes
 - **Story Log**: A vertically scrollable panel on the right tracking player choices in real-time.
 - **Dialogue Box**: Features an improved typewriter effect (`TEXT_EFFECT_TYPING_APPEAR`) with manual skip support (click to show full chunk).
 - **Floating Notifications**: Visual feedback for stat changes (e.g., "+20 Mana") that float up and fade away.
+- **Background Music (BGM)**: Integrated `pygame.mixer` for looping background music support. The WasteLand theme includes `bgm1.mp3` for immersive atmosphere.
+- **Font Optimization**: Pre-loaded font sets (`arial_bold_aa_18`, `arial_italic_aa_22`) to ensure smooth HTML tag rendering without console warnings.
 - **End-Game Overlay**: Dedicated Retry/Quit buttons presented via a central UI overlay.
 
 ## Theme Creation Guide

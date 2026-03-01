@@ -23,10 +23,10 @@ class VisualNovelUI:
         self.manager = pygame_gui.UIManager((WIDTH, HEIGHT), theme_path)
         
         # Preload specific fonts to resolve UserWarnings for bold/italic HTML tags
-        # Synchronized with size 22 from theme.json
+        # arial_bold_aa_22 is already loaded via theme.json for text_box, so only preload others needed
         self.manager.preload_fonts([
-            {'name': 'arial', 'point_size': 22, 'style': 'bold', 'antialiased': '1'},
-            {'name': 'arial', 'point_size': 22, 'style': 'italic', 'antialiased': '1'}
+            {'name': 'arial', 'point_size': 22, 'style': 'italic', 'antialiased': '1'},
+            {'name': 'arial', 'point_size': 18, 'style': 'bold', 'antialiased': '1'}
         ])
 
         self.clock = pygame.time.Clock()
@@ -100,6 +100,21 @@ class VisualNovelUI:
         self.stat_labels["mana"].set_text(f"Mana: {player.mana}")
         self.stat_labels["bullets"].set_text(f"Bullets: {player.bullet}")
         self.stat_labels["credits"].set_text(f"Credits: {player.credits}")
+
+    def play_bgm(self, music_path: str, loops: int = -1):
+        """Starts background music playback."""
+        if not pygame.mixer.get_init():
+            pygame.mixer.init()
+        try:
+            pygame.mixer.music.load(music_path)
+            pygame.mixer.music.play(loops)
+        except Exception as e:
+            print(f"Error playing music {music_path}: {e}")
+
+    def stop_bgm(self):
+        """Stops background music playback."""
+        if pygame.mixer.get_init():
+            pygame.mixer.music.stop()
 
     def clear_ui(self):
         """Wipes the UI elements clean for a fresh session."""
@@ -450,6 +465,7 @@ def main():
     from game_master import GameMaster
     ui = VisualNovelUI()
     gm = GameMaster("WasteLand", on_stat_change=ui.spawn_floating_notification)
+    ui.play_bgm("assets/themes/WasteLand/bgm1.mp3")
     run_game_loop(gm, ui, "assets/themes/WasteLand/city3.jpg")
 
 if __name__ == "__main__":

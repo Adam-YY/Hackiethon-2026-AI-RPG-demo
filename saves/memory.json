@@ -1,26 +1,34 @@
 {
   "player_state": {
-    "hp": 100,
-    "mana": 50,
-    "bullet": 5,
+    "hp": 80,
+    "mana": 60,
+    "bullet": 3,
     "credits": 50,
     "inventory": []
   },
-  "current_location": "script_6",
+  "current_location": "script_13",
   "recent_history": [
     {
-      "action": "1",
-      "result": "Accept the task"
+      "action": "2",
+      "result": "Keep it to yourself"
+    },
+    {
+      "action": "2",
+      "result": "Go at night"
     },
     {
       "action": "1",
-      "result": "Go with colleagues (ask supervisor to allocate more people)"
+      "result": "Road 1"
     },
     {
-      "action": "1",
-      "result": "Tell colleagues about what you heard and follow the sound together"
+      "action": "2",
+      "result": "Fight the echo with spells and items"
+    },
+    {
+      "action": "2",
+      "result": "Go home"
     }
   ],
-  "turn_count": 4,
-  "timestamp": 1772299748.733094
+  "turn_count": 10,
+  "timestamp": 1772342779.062539
 }
