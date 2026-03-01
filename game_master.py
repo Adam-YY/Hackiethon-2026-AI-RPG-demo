@@ -52,7 +52,21 @@ class GameMaster:
         self.target_scene_text = None
 
     def get_current_scene(self) -> Scene:
-        return self.state.scenes[self.state.player.current_scene_id]
+        scene_id = self.state.player.current_scene_id
+        if scene_id == "ai_sandbox_node":
+            # If we are in this node, it means we should be in dynamic mode.
+            # We return the last generated scene stored in the world state.
+            # This is a safety fallback.
+            self.in_dynamic_mode = True
+            # Find the most recently added scene in the dictionary (ordered in Python 3.7+)
+            return list(self.state.scenes.values())[-1]
+        
+        if scene_id not in self.state.scenes:
+            # Fallback to initial scene or a safe default if something went wrong
+            print(f"Warning: Scene ID '{scene_id}' not found. Defaulting to first available.")
+            return list(self.state.scenes.values())[0]
+            
+        return self.state.scenes[scene_id]
 
     def get_hud(self) -> str:
         p = self.state.player
@@ -194,7 +208,11 @@ class GameMaster:
             # 2. Transition
             self.state.player.current_scene_id = selected_option.next_scene_id
             
-            # 3. Update Memory
+            # 3. Handle Special Nodes
+            if self.state.player.current_scene_id == "ai_sandbox_node":
+                self.in_dynamic_mode = True
+
+            # 4. Update Memory
             self.memory.add_interaction(str(choice_id), selected_option.text)
             self.memory.save_snapshot(
                 self.state.player, 
