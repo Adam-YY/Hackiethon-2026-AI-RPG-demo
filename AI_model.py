@@ -20,8 +20,8 @@ FALLBACK_SCENE = Scene(
     text="The path ahead is clouded by a strange distortion in the weave of reality. You must gather your thoughts and try again.",
     is_end=False,
     options=[
-        Option(id=1, text="Try to push through the distortion.", next_scene_id="current_scene"),
-        Option(id=2, text="Wait for the mists to clear.", next_scene_id="current_scene")
+        Option(id=1, text="Try to push through the distortion.", next_scene_id="ai_sandbox_node"),
+        Option(id=2, text="Wait for the mists to clear.", next_scene_id="ai_sandbox_node")
     ]
 )
 
@@ -44,6 +44,15 @@ def extract_json(llm_response):
     
     return llm_response.strip()
 
+def safe_int(value, default=0):
+    """Safely convert a value to an integer, returning a default on failure."""
+    try:
+        if value is None:
+            return default
+        return int(float(value)) # Handle '10.0' or '10'
+    except (ValueError, TypeError):
+        return default
+
 def parse_gm_response(raw_content):
     """
     Parse the model's response into a Scene object.
@@ -57,26 +66,39 @@ def parse_gm_response(raw_content):
         options = []
         for i, opt in enumerate(raw_options):
             if isinstance(opt, dict) and "text" in opt:
+                ns_id = str(opt.get("next_scene_id", "ai_sandbox_node"))
+                # PREVENT STORY RESTART: If AI returns a script number or 'script_X', 
+                # but hasn't flagged reached_target_plot, force it to stay in sandbox.
+                if ns_id.isdigit() or ns_id.startswith("script_") or ns_id == "next_node":
+                    if not bool(data.get("reached_target_plot", False)):
+                        ns_id = "ai_sandbox_node"
+                
                 options.append(Option(
                     id=opt.get("id", i+1),
                     text=opt["text"],
-                    next_scene_id=opt.get("next_scene_id", "next_node")
+                    next_scene_id=ns_id
                 ))
         
         if not options and not data.get("is_end"):
-            options = [Option(id=1, text="Continue...", next_scene_id="next_node")]
+            options = [Option(id=1, text="Continue...", next_scene_id="ai_sandbox_node")]
 
-        # Extract stat changes with default zero values
+        # Extract stat changes with safe parsing
         raw_stats = data.get("stat_changes", {})
         stat_changes = {
-            "hp": int(raw_stats.get("hp", 0)),
-            "mana": int(raw_stats.get("mana", 0)),
-            "bullet": int(raw_stats.get("bullet", 0)),
-            "credits": int(raw_stats.get("credits", 0))
+            "hp": safe_int(raw_stats.get("hp")),
+            "mana": safe_int(raw_stats.get("mana")),
+            "bullet": safe_int(raw_stats.get("bullet")),
+            "credits": safe_int(raw_stats.get("credits"))
         }
 
+        # Generate a semi-unique ID if none provided
+        import time
+        node_id = data.get("id")
+        if not node_id or node_id == "ai_node":
+            node_id = f"dynamic_{int(time.time())}"
+
         return Scene(
-            id=data.get("id", "ai_node"),
+            id=node_id,
             text=data.get("text", "The story continues..."),
             is_end=bool(data.get("is_end", False)),
             options=options,
@@ -84,7 +106,8 @@ def parse_gm_response(raw_content):
             stat_changes=stat_changes
         )
         
-    except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
+        print(f"JSON Parsing Error: {e}")
         return FALLBACK_SCENE
 
 def call_ai_game_master(
@@ -106,6 +129,7 @@ def call_ai_game_master(
         custom_input=last_player_action or "The story continues...",
         recent_history=decision_history,
         target_scene_text=target_scene_text,
+        target_scene_id=target_scene_id,
         current_turn=turn_count,
         max_turns=max_turns
     )
@@ -120,7 +144,7 @@ def call_ai_game_master(
                 {"role": "user", "content": prompt},
             ],
             model=MODEL_ID,
-            temperature=0.7,
+            temperature=0.8,
             max_tokens=1024,
         )
         raw = chat_completion.choices[0].message.content or "{}"

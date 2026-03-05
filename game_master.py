@@ -28,6 +28,7 @@ class GameMaster:
         # Global Pacing
         self.global_turn_count = 0
         self.max_turns = 20
+        self.system_failure_triggered = False
 
         # AI Control
         self.in_dynamic_mode = False
@@ -47,6 +48,7 @@ class GameMaster:
         self.logger.reset_game()
         
         self.global_turn_count = 0
+        self.system_failure_triggered = False
         self.in_dynamic_mode = False
         self.saved_target_scene_id = None
         self.target_scene_text = None
@@ -54,17 +56,20 @@ class GameMaster:
     def get_current_scene(self) -> Scene:
         scene_id = self.state.player.current_scene_id
         if scene_id == "ai_sandbox_node":
-            # If we are in this node, it means we should be in dynamic mode.
-            # We return the last generated scene stored in the world state.
-            # This is a safety fallback.
             self.in_dynamic_mode = True
             # Find the most recently added scene in the dictionary (ordered in Python 3.7+)
+            # This ensures we stay in the dynamic flow.
+            dynamic_scenes = [s for s in self.state.scenes.values() if s.id.startswith("dynamic_") or s.id == "ai_node"]
+            if dynamic_scenes:
+                return dynamic_scenes[-1]
             return list(self.state.scenes.values())[-1]
         
         if scene_id not in self.state.scenes:
-            # Fallback to initial scene or a safe default if something went wrong
-            print(f"Warning: Scene ID '{scene_id}' not found. Defaulting to first available.")
-            return list(self.state.scenes.values())[0]
+            # BUGFIX: Do NOT default to list(val)[0] as that restarts the game.
+            # Instead, try to stay on the last valid scene if possible.
+            print(f"Critical Error: Scene ID '{scene_id}' missing. Attempting to stay on current node.")
+            # Fallback to the last added scene as a safety measure for AI drift
+            return list(self.state.scenes.values())[-1]
             
         return self.state.scenes[scene_id]
 
@@ -111,9 +116,11 @@ class GameMaster:
         # Check turn limit: Force AI Climax if limit reached
         if self.global_turn_count >= self.max_turns and not current_scene.is_end:
             self.in_dynamic_mode = True
-            self.target_scene_text = "The story reaches its final conclusion."
+            # We don't have a specific target scene now, we just want an ending.
+            self.target_scene_text = "The story must reach its final, definitive conclusion now."
             self.saved_target_scene_id = current_scene.id
-            return self._run_mode_b("The temporal distortion forces an ending."), []
+            # We trigger Mode B with a prompt that forces an ending
+            return self._run_mode_b("The weight of your journey reaches its breaking point. Time itself seems to fracture."), []
 
         # Apply deterministic event triggers
         fired_descriptions = self._handle_events()
@@ -130,6 +137,10 @@ class GameMaster:
         """
         Mode B (AI Takeover): Infinite Dynamic State with Semantic Re-entry.
         """
+        # Clean internal IDs from player input to avoid AI confusion
+        if player_input == "ai_sandbox_node":
+            player_input = "The journey continues deeper into the unknown."
+
         # 1. Prepare context for AI
         current_stats = {
             "hp": self.state.player.hp,
@@ -153,18 +164,24 @@ class GameMaster:
         
         # 3. Handle the AI's JSON Response
         
-        # Hard Safety: Force conclusion if turn budget is exhausted
+        # Hard Safety: If turn budget is exhausted, tell the AI to wrap it up
         if self.global_turn_count >= self.max_turns:
-            ai_scene.is_end = True
-            ai_scene.options = []
-
+            # We don't force is_end = True here yet if the AI hasn't written the ending.
+            # We trust call_ai_game_master (Phase 2) to receive the max_turns signal 
+            # and set is_end = True in its JSON response.
+            # If it's the absolute last turn, we force it.
+            if self.global_turn_count > self.max_turns:
+                 ai_scene.is_end = True
+        
         # Apply AI-generated stat consequences
         if hasattr(ai_scene, "stat_changes") and ai_scene.stat_changes:
             self._apply_effect(ai_scene.stat_changes)
 
         if ai_scene.is_end:
             # The interface loop will detect current_scene.is_end and stop.
-            pass
+            # Ensure no options leak out if it's the end
+            ai_scene.options = []
+            self.in_dynamic_mode = False 
             
         elif ai_scene.reached_target_plot:
             # Semantic Re-entry: Point the generated options back to our world.json target
@@ -175,10 +192,10 @@ class GameMaster:
             self.in_dynamic_mode = False
         
         else:
-            # Sandbox Continue: Ensure 'dynamic_await' never leaks into the scene IDs
+            # Sandbox Continue: Validate that ALL options point to valid IDs or ai_sandbox_node
             for opt in ai_scene.options:
-                if opt.next_scene_id == "dynamic_await":
-                    # We'll set it to a special ID that run_turn knows to handle via Mode B
+                # If it's a known static scene, keep it. Otherwise, force sandbox loop.
+                if opt.next_scene_id not in self.state.scenes:
                     opt.next_scene_id = "ai_sandbox_node"
 
         # 4. Update World State (Generate a temporary Scene node)
@@ -267,5 +284,10 @@ class GameMaster:
 
     def check_game_over(self) -> Optional[str]:
         if self.state.player.hp <= 0:
-            return "SYSTEM FAILURE: Vital signs terminated. Game Over."
+            # Internal Signal (Not shown to user, but exists in logs/memory)
+            self.system_failure_triggered = True
+            self.logger.log("SYSTEM", "SYSTEM FAILURE: Vital signs terminated.")
+            
+            # Narrative message for the user (from story.json)
+            return self.story.get("death_message", "Game Over. You are wasted.")
         return None

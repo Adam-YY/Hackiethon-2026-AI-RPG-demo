@@ -88,6 +88,8 @@ class NarrativeLogger:
         """
         if role.upper() == "PLAYER":
             entry = f"Selected Option: {text}\n"
+        elif role.upper() == "SYSTEM":
+            entry = f"[INTERNAL SIGNAL] {text.strip()}\n"
         else:
             entry = f"Scene Description: {text.strip()}\n"
         

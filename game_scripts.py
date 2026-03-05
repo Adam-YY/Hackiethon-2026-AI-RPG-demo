@@ -267,7 +267,7 @@ Be concise but evocative.
     
     return prompt
 
-def build_dynamic_prompt(player_stats: dict, custom_input: str, recent_history: list, target_scene_text: str, current_turn: int, max_turns: int):
+def build_dynamic_prompt(player_stats: dict, custom_input: str, recent_history: list, target_scene_text: str, target_scene_id: str, current_turn: int, max_turns: int):
     """
     Builds the system prompt for dynamic node generation, enforcing Semantic Re-entry, 
     Turn Budget, and Stat Consequences.
@@ -302,9 +302,12 @@ def build_dynamic_prompt(player_stats: dict, custom_input: str, recent_history: 
     steering_instruction = ""
     if target_scene_text:
         steering_instruction = (
-            f"\nYour goal as the Game Master is to organically steer the narrative back toward this upcoming event: [{target_scene_text}]. "
-            "If the player's current action allows for a seamless, logical transition into that event right now, set \"reached_target_plot\": true. "
-            "If they are doing something completely unrelated, continue the sandbox story, generate 2 new dynamic options, and set \"reached_target_plot\": false."
+            f"\nYour goal as the Game Master is to steer the story. You have two choices:\n"
+            f"1. OPTIONAL RE-RAILING: Steer the narrative back toward this event: [{target_scene_text}]. "
+            "If you do this, set \"reached_target_plot\": true.\n"
+            "2. AUTONOMOUS ENDING: If the player's action logically leads to a final conclusion (Victory or Tragedy), "
+            "you may end the story immediately. If you do this, set \"is_end\": true.\n"
+            "3. SANDBOX: If neither above fits, continue the sandbox story, generate 2 options, and set \"reached_target_plot\": false."
         )
     
     # Stat Consequences Directive
@@ -318,31 +321,44 @@ def build_dynamic_prompt(player_stats: dict, custom_input: str, recent_history: 
 
     history_text = "\n".join([f"- {h['action']} -> {h['result']}" for h in recent_history[-5:]])
 
+    # Rules for ID management
+    id_rules = (
+        "\n## ID MANAGEMENT RULES:\n"
+        "1. For the current scene 'id': generate a unique string starting with 'dynamic_'.\n"
+        "2. For each option's 'next_scene_id':\n"
+        "   - If 'reached_target_plot' is true, set it to the target_scene_id provided below.\n"
+        "   - Otherwise, you MUST set it to exactly 'ai_sandbox_node'. DO NOT use any other ID, especially not '1', 'script_1', or 'next_node'.\n"
+    )
+
     prompt = f"""<|start_header_id|>system<|end_header_id|>
 
-You are the AI Game Master for a "Post-Magic" Industrial RPG. 
-You must return only a valid JSON object matching the schema below.
+    You are the AI Game Master for a "Post-Magic" Industrial RPG. 
+    You must return only a valid JSON object matching the schema below.
 
-## JSON Schema Template:
-{json.dumps(schema_template, indent=2)}
+    ## JSON Schema Template:
+    {json.dumps(schema_template, indent=2)}
 
-## Rules:
-1. "text": Incorporate action: "{custom_input}". Max 75 words.
-2. "options": Exactly 2 options unless "is_end" is true.
-3. "reached_target_plot": Set true only if the player has been successfully re-railed.
-{climax_override}
-{steering_instruction}
-{stat_consequences}
+    ## Rules:
+    1. "text": Incorporate action: "{custom_input}". Max 75 words. 
+       **CRITICAL: You must describe a unique, new outcome that progresses the story. DO NOT repeat the narrative from the recent history.**
+    2. "options": You MUST provide exactly 2 options unless "is_end" is true. 
+ 
+    3. "reached_target_plot": Set true only if the player has been successfully re-railed.
+    {climax_override}
+    {steering_instruction}
+    {id_rules}
+    {stat_consequences}
 
-## Player Context:
-Stats: HP={player_stats.get('hp')}, Mana={player_stats.get('mana')}, Bullets={player_stats.get('bullet')}, Credits={player_stats.get('credits')}
-Turns: {current_turn}/{max_turns}
-Recent History:
-{history_text}
+    ## Player Context:
+    Stats: HP={player_stats.get('hp')}, Mana={player_stats.get('mana')}, Bullets={player_stats.get('bullet')}, Credits={player_stats.get('credits')}
+    Turns: {current_turn}/{max_turns}
+    Target Scene ID (if any): {target_scene_id or "None"}
+    Recent History:
+    {history_text}
 
-## Environment:
-{GAME_WORLD_SUMMARY}
-<|eot_id|>"""
+    ## Environment:
+    {GAME_WORLD_SUMMARY}
+    <|eot_id|>"""
     return prompt
 
 def get_script(script_id):

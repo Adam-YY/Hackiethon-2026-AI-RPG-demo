@@ -30,7 +30,8 @@ HackMelb/
 ## Key Features (Advanced Logic Layer)
 
 - **Dynamic Narrative Chunking**: Narrative text is automatically split into manageable 3-sentence chunks. Players can click through chunks with a smooth, flicker-free typewriter effect (0.05s/char).
-- **HP-Based Game Over**: Real-time tracking of player vitals (HP, Mana, Bullets, Credits). If HP reaches 0, the engine triggers a "SYSTEM FAILURE" state.
+- **HP-Based Game Over**: Real-time tracking of player vitals (HP, Mana, Bullets, Credits). If HP reaches 0, the engine triggers an internal **SYSTEM FAILURE** signal and displays a theme-specific narrative `death_message` to the player.
+- **Theme-Specific Death Messages**: Narrative Game Over text is now loaded from `story.json`, allowing each theme to have a unique tone (e.g., "The silver mist claims another soul" for WasteLand).
 - **Session Persistence & Restart**: At the end of a session (narrative conclusion or death), players can choose to **RETRY SESSION** (resetting all stats and progress) or **QUIT TO DESKTOP**.
 - **Mode B (AI Takeover)**: Integrated LLM support for custom player actions. When a player types a custom action, the engine enters a 3-round AI detour before re-railing back to the deterministic story graph.
 - **Event-Driven Triggers**: Hidden triggers in `events.json` can modify player stats based on scene entry or specific conditions.
@@ -49,13 +50,13 @@ The engine uses a **Dark Wasteland / Cyberpunk** theme defined in `assets/themes
 ## Theme Creation Guide
 
 Define your story in `assets/themes/[ThemeName]/`:
-1.  **`story.json`**: Narrative scripts.
+1.  **`story.json`**: Narrative scripts, title, intro text, and the narrative `death_message`.
 2.  **`world.json`**: Logic graph and initial player stats.
 3.  **`events.json`**: Stat triggers and descriptions.
 
 ## State Management & Persistence
 
-1.  **Narrative Log (`logs/session_*.txt`)**: Human-readable audit of the journey.
+1.  **Narrative Log (`logs/session_*.txt`)**: Human-readable audit of the journey, including `[INTERNAL SIGNAL]` markers for system events.
 2.  **Memory Snapshot (`saves/memory.json`)**: JSON snapshot optimized for LLM context.
 
 ## Setup & Running
