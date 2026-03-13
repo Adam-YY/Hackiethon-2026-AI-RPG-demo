@@ -12,7 +12,7 @@ from game_scripts import GAME_WORLD_SUMMARY, build_dynamic_prompt
 # Fill in your own api key here folks, get it here: https://groq.com/
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-MODEL_ID = "meta-llama/llama-4-maverick-17b-128e-instruct"
+MODEL_ID = "openai/gpt-oss-120b"
 
 # --- Fallback Scene ---
 FALLBACK_SCENE = Scene(
