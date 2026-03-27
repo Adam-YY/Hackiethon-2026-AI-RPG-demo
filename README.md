@@ -1,3 +1,35 @@
+## Setup & Running
+
+1.  **Install Dependencies (Recommended)**:
+    - **Windows (PowerShell)**:
+      ```powershell
+      .\setup.ps1
+      ```
+      If scripts are blocked:
+      ```powershell
+      powershell -ExecutionPolicy Bypass -File setup.ps1
+      ```
+    - **macOS / Linux (bash)**:
+      ```bash
+      chmod +x setup.sh
+      ./setup.sh
+      ```
+
+2.  **Activate the venv (optional, but helpful)**:
+    - **Windows (PowerShell)**:
+      ```powershell
+      .\.venv\Scripts\Activate.ps1
+      ```
+    - **macOS / Linux (bash)**:
+      ```bash
+      source .venv/bin/activate
+      ```
+
+3.  **Start the Engine**:
+    ```bash
+    python3 main.py
+    ```
+
 # Iron Skeleton: Visual Novel Engine (Pygame Edition)
 
 Iron Skeleton is a deterministic, data-driven **Visual Novel and Decision Tree engine** built in Python 3.10+. It features a beautiful, modular UI powered by `pygame_gui` and is designed for Phase 2 integration with Large Language Models (LLMs).
@@ -59,16 +91,6 @@ Define your story in `assets/themes/[ThemeName]/`:
 1.  **Narrative Log (`logs/session_*.txt`)**: Human-readable audit of the journey, including `[INTERNAL SIGNAL]` markers for system events.
 2.  **Memory Snapshot (`saves/memory.json`)**: JSON snapshot optimized for LLM context.
 
-## Setup & Running
-
-1.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-2.  **Start the Engine**:
-    ```bash
-    python3 main.py
-    ```
 
 ## Phase 2: Neuro-Symbolic Integration
 The engine supports a "Custom Action" button. When clicked, it enters **Mode B (AI Takeover)**, where a Llama 3.1 model generates dynamic outcomes based on player input, before re-railing back to the deterministic story graph.
